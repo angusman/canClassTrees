@@ -88,7 +88,7 @@ class dtree:
 
 		return leftset, rightset, targetcolumn, targetvalue
 
-	def bulid_tree(self, data = None, min_entropy = None, tree_dict = None):
+	def node_tree(self, data = None, min_entropy = None, tree_dict = None):
 		# recusively split the tree until all nodes h ave entropy less than min_entropy
 		node_counts = dict(data.label.value_counts())
 		tree_dict["stats"] = { "training_points" : len(data),
@@ -99,12 +99,18 @@ class dtree:
 			leftset, rightset, targetcolumn, targetvalue = self.find_best_split(data)
 			tree_dict["column"] = targetcolumn
 			tree_dict["value"] = targetvalue
-			tree_dict["leftnode"] = self.bulid_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
-			tree_dict["rightnode"] = self.bulid_tree(data = rightset, min_entropy = min_entropy, tree_dict = {})
+			tree_dict["leftnode"] = self.node_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
+			tree_dict["rightnode"] = self.node_tree(data = rightset, min_entropy = min_entropy, tree_dict = {})
 
 
 
 		return tree_dict
+
+	def bulid_tree(self, data = None, min_entropy = None, tree_dict = None):
+		self.tree_dict = self.node_tree(data = data, min_entropy = min_entropy, tree_dict = {})
+
+		return self.tree_dict
+
 
 
 	def predict(self, sample):
