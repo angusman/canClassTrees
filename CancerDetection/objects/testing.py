@@ -1,5 +1,6 @@
 import pandas as pd 
 from dtree import dtree
+from pprint import pprint as pp
 
 if __name__ == '__main__':
 	data_df = pd.read_csv('toydataset.csv')
@@ -32,10 +33,14 @@ if __name__ == '__main__':
 	print("splitting value")
 	print(value)
 
-	leftsets, rightsets = mytree.find_best_split(data = data_df)
+	leftsets, rightsets, targetcolumn, targetvalue = mytree.find_best_split(data = data_df)
 
 	print("best split for full data")
 	print("leftset")
 	print(leftsets)
 	print("rightset")
 	print(rightsets)
+
+	sampletree = mytree.bulid_tree(data = data_df, min_entropy = .5 ,tree_dict = {})
+
+	pp(sampletree)

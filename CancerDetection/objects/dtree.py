@@ -1,3 +1,4 @@
+
 class dtree:
 
 	
@@ -83,16 +84,28 @@ class dtree:
 
 
 		# third, split along the column and return the left and right sets
-
 		leftset, rightset = self.set_splitter(data = data,  column = targetcolumn, value = targetvalue)
 
-		
+		return leftset, rightset, targetcolumn, targetvalue
 
-		return leftset, rightset
+	def bulid_tree(self, data = None, min_entropy = None, tree_dict = None):
+		# recusively split the tree until all nodes h ave entropy less than min_entropy
+		node_counts = dict(data.label.value_counts())
+		tree_dict["stats"] = { "training_points" : len(data),
+							 "point_composition" : node_counts,
+							 "node_entropy" : self.entropy(data = data) }
 
-	def create_node(self, data = None):
-		# load data here
-		return data
+		if self.entropy(data = data) > min_entropy:
+			leftset, rightset, targetcolumn, targetvalue = self.find_best_split(data)
+			tree_dict["column"] = targetcolumn
+			tree_dict["value"] = targetvalue
+			tree_dict["leftnode"] = self.bulid_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
+			tree_dict["rightnode"] = self.bulid_tree(data = rightset, min_entropy = min_entropy, tree_dict = {})
+
+
+
+		return tree_dict
+
 
 	def predict(self, sample):
 		# predict the state of the sample
