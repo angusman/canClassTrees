@@ -1,16 +1,29 @@
 class dtree_node(object)
+	from math import log
 	"""
 	Basic decision tree object
 	"""
-	def __init__(self, data = None):
+	def __init__(self, data = None, cancercol = None):
+		# can be initalized without data or cancercol
+		self.cancer_column = cancercol
 		if data != None:
-			self.load_data(data)
+			self.create_node(data)
 
 	def create_node(self, data = None):
 		# load data here
 
-	def set_entropy(self, data = None, Column = None, Value = None):
-		# for a given set calculate the entrop of a set
+	def set_entropy(self, data = None):
+
+		### note this needs to be debugged, assuming we are using pandas not sure how this will all work out.
+		log2 = lambda x: log(x)/log(2)
+		resulttypes = data.cancer_column.value_counts()
+		ent = 0
+		ent=0.0
+   		for r in results.keys():
+      		p=float(results[r])/len(rows)
+      		ent=ent-p*log2(p)
+   		return ent
+
 
 		return entropy
 
