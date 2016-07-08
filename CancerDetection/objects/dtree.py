@@ -1,4 +1,5 @@
 
+from pprint import pprint as pp
 class dtree:
 
 	
@@ -8,6 +9,7 @@ class dtree:
 		# can be initalized without data or cancercol
 		self.label = labelcol
 		full_df = data
+		tree_dict = {}
 		return None
 
 	def entropy(self, data = None):
@@ -113,10 +115,42 @@ class dtree:
 
 
 
-	def predict(self, sample):
-		# predict the state of the sample
-		return prediction
+	def predict_df(self, sample = None):
+		# given a sample (currently not sure what data type it should be) predict its label given the tree_dict structure
 
-	def display(self):
-		# display the tree somehow? low priority task
-		return None
+		# make sure there is a tree in place
+		if self.tree_dict == {}:
+			return "no tree dictionary found"
+
+		# prepare a vector to put predictions into
+		row_pred = []
+		# loop over the rows and use the predict_row function on that row
+		for k in range(len(sample)):
+			# print(self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict))
+			prediction = self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict)
+			row_pred.append(prediction)
+
+		sample['pred'] = row_pred
+		prediction_df = sample
+		return prediction_df
+
+	def predict_row(self, samplerow = None, tree_dict = None):
+		# helper recusvice function for predict_df
+		# note this assumes that the label occupies the first column
+		keys = list(tree_dict.keys())
+		prediction = None
+		
+		# while we still have nodes to continue along for keep digging down
+		if "leftnode" in keys:
+			if samplerow.iloc[tree_dict["column"]-1] > tree_dict["value"]:
+				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["leftnode"])
+			elif samplerow.iloc[tree_dict["column"]-1] <= tree_dict["value"]:
+
+				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["rightnode"])
+		if "leftnode" not in keys:
+			# sorry for stacking alot of functions into a line
+			prediction = (list(tree_dict["stats"]["point_composition"].keys())[0])
+			return prediction
+
+		return prediction
+		
