@@ -1,0 +1,14 @@
+toydata set 2 readme
+
+feature1:
+A normal(10,5)
+B normal(12, 5)
+
+feature2:
+A normal(20,2)
+B normal(18,3)
+
+feature3:
+
+A poisson(4)
+B poisson(6)
