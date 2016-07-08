@@ -116,7 +116,7 @@ class dtree:
 
 
 	def predict_df(self, sample = None):
-		# given a sample (currently not sure what data type it should be) predict its label given the tree_dict structure
+		# given a sample dataframe without label predict its label given the tree_dict structure
 
 		# make sure there is a tree in place
 		if self.tree_dict == {}:
