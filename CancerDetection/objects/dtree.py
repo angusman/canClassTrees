@@ -84,8 +84,8 @@ class dtree:
 			# if weights are used then apply weighting to information gain
 			# Note: not currently tested
 			if self.featureweights != None:
-				infogain = infogain * self.featureweights[col]
-			
+				infogain *= self.featureweights[col-1]
+
 			# if we get a top information gain then we save that and continue
 			if infogain >= maxinfogain:
 				maxinfogain = infogain
@@ -96,7 +96,7 @@ class dtree:
 		# third, split along the column and return the left and right sets
 		leftset, rightset = self.set_splitter(data = data,  column = targetcolumn, value = targetvalue)
 
-		return leftset, rightset, targetcolumn, targetvalue
+		return leftset, rightset, targetcolumn, targetvalue, maxinfogain
 
 	def node_tree(self, data = None, min_entropy = None, tree_dict = None):
 		# recusively split the tree until all nodes h ave entropy less than min_entropy
@@ -106,7 +106,11 @@ class dtree:
 							 "node_entropy" : self.entropy(data = data) }
 
 		if self.entropy(data = data) > min_entropy:
-			leftset, rightset, targetcolumn, targetvalue = self.find_best_split(data)
+			leftset, rightset, targetcolumn, targetvalue, infogain = self.find_best_split(data)
+
+			if infogain <= .0000001:
+				return tree_dict
+
 			tree_dict["column"] = targetcolumn
 			tree_dict["value"] = targetvalue
 			tree_dict["leftnode"] = self.node_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
@@ -153,16 +157,16 @@ class dtree:
 		v = list(tree_dict['stats']['point_composition'].values())
 		k = list(tree_dict['stats']['point_composition'].keys())
 		prediction = None
-		
 		# while we still have nodes to continue along for keep digging down
 		if "leftnode" in keys:
+
 			if samplerow.iloc[tree_dict["column"]-1] > tree_dict["value"]:
 				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["leftnode"])
-			elif samplerow.iloc[tree_dict["column"]-1] <= tree_dict["value"]:
 
+			elif samplerow.iloc[tree_dict["column"]-1] <= tree_dict["value"]:
 				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["rightnode"])
+
 		if "leftnode" not in keys:
-			# sorry for stacking alot of functions into a line
 			prediction = k[v.index(max(v))]
 			return prediction
 
