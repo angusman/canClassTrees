@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
 	mytree = dtree(data = data_df, labelcol = 0)
 
-	sampletree = mytree.bulid_tree(data = data_df, min_entropy = .1 ,tree_dict = {})
+	sampletree = mytree.build_tree(data = data_df, min_entropy = .1 ,tree_dict = {})
 
 	pp(sampletree)
 
