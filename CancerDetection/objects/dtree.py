@@ -1,5 +1,7 @@
 
 from pprint import pprint as pp
+import operator
+
 class dtree:
 
 	
@@ -21,7 +23,7 @@ class dtree:
 		log2 = lambda x: log(x)/log(2)
 
 		# get the labels and counts from the given data set
-		results = data.label.value_counts()
+		results = data.iloc[:,self.label].value_counts()
 		
 		# inital entropy is 0
 		ent=0.0
@@ -92,7 +94,7 @@ class dtree:
 
 	def node_tree(self, data = None, min_entropy = None, tree_dict = None):
 		# recusively split the tree until all nodes h ave entropy less than min_entropy
-		node_counts = dict(data.label.value_counts())
+		node_counts = dict(data.iloc[:,self.label].value_counts())
 		tree_dict["stats"] = { "training_points" : len(data),
 							 "point_composition" : node_counts,
 							 "node_entropy" : self.entropy(data = data) }
@@ -130,6 +132,7 @@ class dtree:
 			prediction = self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict)
 			row_pred.append(prediction)
 
+
 		sample['pred'] = row_pred
 		prediction_df = sample
 		return prediction_df
@@ -137,7 +140,12 @@ class dtree:
 	def predict_row(self, samplerow = None, tree_dict = None):
 		# helper recusvice function for predict_df
 		# note this assumes that the label occupies the first column
+
+
+		value = list(tree_dict.values())
 		keys = list(tree_dict.keys())
+		v = list(tree_dict['stats']['point_composition'].values())
+		k = list(tree_dict['stats']['point_composition'].keys())
 		prediction = None
 		
 		# while we still have nodes to continue along for keep digging down
@@ -149,8 +157,10 @@ class dtree:
 				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["rightnode"])
 		if "leftnode" not in keys:
 			# sorry for stacking alot of functions into a line
-			prediction = (list(tree_dict["stats"]["point_composition"].keys())[0])
+			prediction = k[v.index(max(v))]
 			return prediction
 
 		return prediction
+
+
 		

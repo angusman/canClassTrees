@@ -3,7 +3,7 @@ from dtree import dtree
 from pprint import pprint as pp
 
 if __name__ == '__main__':
-	data_df = pd.read_csv('toydataset2.csv')
+	data_df = pd.read_csv('thousandtoy.csv')
 
 	print("full toy data set")
 	print(len(data_df))
@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
 	pp(sampletree)
 
-	test_df = pd.read_csv("testingtoyset2.csv")
+	test_df = pd.read_csv("thousandtoytest.csv")
 	unknown_df = test_df.iloc[:,1:]
 	prediction = mytree.predict_df(unknown_df)
 
@@ -22,8 +22,8 @@ if __name__ == '__main__':
 	test_pred_df['pred'] = prediction['pred']
 
 
-	test_pred_df['correct'] = test_pred_df['pred'] == test_pred_df['label']
-	print('preditions and labels of toydataset2')
+	test_pred_df['correct'] = test_pred_df.iloc[:,0] == test_pred_df.iloc[:,0]
+	print('preditions on thousandtoytest')
 	print(test_pred_df)
 
 
