@@ -1,7 +1,3 @@
-# ... misunderstood how dtree is functioning, so going to need to redo implementation
-# I was thinking that I could capture the dtree dicts produced in a list and feed data to them
-# however, it appears that you need to actually feed to a separate function 
-
 from dtree_rforest import dtree_rforest
 class rforest:
     
