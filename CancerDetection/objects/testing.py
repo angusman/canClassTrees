@@ -6,7 +6,7 @@ if __name__ == '__main__':
 	data_df = pd.read_csv('toydataset2.csv')
 
 	print("full toy data set")
-	print(data_df)
+	print(len(data_df))
 
 	mytree = dtree(data = data_df, labelcol = 0)
 
