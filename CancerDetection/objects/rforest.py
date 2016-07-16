@@ -2,7 +2,7 @@
 # I was thinking that I could capture the dtree dicts produced in a list and feed data to them
 # however, it appears that you need to actually feed to a separate function 
 
-from dtree import dtree
+from dtree_rforest import dtree_rforest
 class rforest:
     
     
@@ -15,42 +15,35 @@ class rforest:
         return None
     
     
-    def build_forest(self, data = None, ktrees = 10, msamples = None, nfeatures = 1):
+    def build_forest(self, data = None, ktrees = 10, msamples = None, nfeatures = None):
         ### default msamples to length of data (WARNING!! not actually None default!!)
         if msamples == None:        
             msamples = len(data)        
         
         # train classifiers
-        from dtree import dtree
         
         # initialize list of classifiers
         self.forest = []
         
         # build k tree classifiers
         for i in range(int(ktrees)):
-            data_tc = self.sample_data(data = data, msamples = msamples, nfeatures = nfeatures)
-            mytree = dtree(data = data_tc, labelcol = 0)
-            sampletree = mytree.build_tree(data = data_tc, min_entropy = .1, tree_dict = {})
-            
-            self.forest.append(sampletree)
+            data_tc = self.sample_data(data = data, msamples = msamples)
+            mytree = dtree_rforest(data = data_tc, labelcol = 0, nfeatures = nfeatures)
+            self.forest.append(mytree)
             
             
         return self.forest
     
     
-    def sample_data(self, data = None, msamples = None, nfeatures = None):
+    def sample_data(self, data = None, msamples = None):
         # uniformly sample data with replacement
         import numpy as np
     
         # bootstrap replicates take same number of samples as original
         row_indx = np.random.randint(0, high = len(data), size = msamples)
         
-        ### feature selection (!! WARNING: This needs to be implemented at the node level in dtree!!)
-        col_indx = np.random.randint(1, high = data.shape[1], size = nfeatures)
-        col_indx = np.append([0],col_indx)      
-        
         # sample data according to indices and selected features
-        data_sampled = data.iloc[row_indx,col_indx]
+        data_sampled = data.iloc[row_indx,:]
         
         return data_sampled
         
@@ -69,6 +62,7 @@ class rforest:
         
         # use tree classifiers to predict
         for i in range(len(self.forest)):
+            self.forest[i].tree_dict = self.forest[i].build_tree(data = self.forest[i].full_df, min_entropy = .1, tree_dict = {})
             prediction = self.forest[i].predict_df(sample).iloc[:,-1]
             subpredictions = pd.concat([subpredictions,prediction], axis = 1)
               
@@ -89,9 +83,9 @@ class rforest:
         
         prediction_mode = []
         for i in range(len(signs)):
-            if signs == 1:
+            if signs[i] == 1:
                 prediction_mode.append("A")
-            elif signs == -1:
+            elif signs[i] == -1:
                 prediction_mode.append("B")
             else:
                 guess = np.random.randint(0,2)

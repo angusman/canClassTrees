@@ -10,9 +10,8 @@ if __name__ == '__main__':
 
     myforest = rforest(data = data_df, labelcol = 0)
 
-    sampleforest = myforest.build_forest(data = data_df, ktrees = 3, msamples = len(data_df), nfeatures = 2)
+    sampleforest = myforest.build_forest(data = data_df, ktrees = 100, msamples = len(data_df), nfeatures = 1)
 
-    print("passed sampleforest")
 
     test_df = pd.read_csv("testingtoyset2.csv")
     unknown_df = test_df.iloc[:,1:]
@@ -27,5 +26,5 @@ if __name__ == '__main__':
 
 
     correct_precentage = float(len(test_pred_df[test_pred_df['correct'] == True]))/len(test_pred_df)
-    print("correct percentage of Dtree with traning data derived of the same way")
+    print("correct percentage of Rforest with traning data derived of the same way")
     print(correct_precentage)
