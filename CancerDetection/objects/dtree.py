@@ -7,11 +7,12 @@ class dtree:
 	
 	# Basic decision tree object
 
-	def __init__(self, data = None, labelcol = None):
+	def __init__(self, data = None, labelcol = None, weights = None):
 		# can be initalized without data or cancercol
 		self.label = labelcol
-		full_df = data
-		tree_dict = {}
+		self.featureweights = weights
+		self.full_df = data
+		self.tree_dict = {}
 		return None
 
 	def entropy(self, data = None):
@@ -80,6 +81,11 @@ class dtree:
 		for col in col_range:
 			infogain, value = self.information_gain(data = data, column = col)
 
+			# if weights are used then apply weighting to information gain
+			# Note: not currently tested
+			if self.featureweights != None:
+				infogain = infogain * self.featureweights[col]
+			
 			# if we get a top information gain then we save that and continue
 			if infogain >= maxinfogain:
 				maxinfogain = infogain
