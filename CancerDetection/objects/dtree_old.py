@@ -120,7 +120,7 @@ class dtree:
 
 		return tree_dict
 
-	def bulid_tree(self, data = None, min_entropy = None, tree_dict = None):
+	def build_tree(self, data = None, min_entropy = None, tree_dict = None):
 		self.tree_dict = self.node_tree(data = data, min_entropy = min_entropy, tree_dict = {})
 
 		return self.tree_dict
