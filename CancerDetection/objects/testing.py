@@ -37,7 +37,7 @@ if __name__ == '__main__':
 	weightvector[2] = 1
 
 	badmodel = dtree(data = data_df, labelcol = 0, weights = weightvector)
-	badtree = badmodel.bulid_tree(data = data_df, min_entropy = .95 ,tree_dict = {})
+	badtree = badmodel.build_tree(data = data_df, min_entropy = .95 ,tree_dict = {})
 	bad_pred_df = badmodel.predict_df(unknown_df)
 	bad_pred_df['correct'] = test_df.iloc[:,0] == bad_pred_df["pred"]
 
