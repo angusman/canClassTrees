@@ -24,7 +24,7 @@ def num_observations(df):
 
 def grow_tree(ws, learn_set, sample_size):
     """Grow a decision tree using given weights ws and DataFrame learn_set"""
-    sample_set = learn_set.sample(n = sample_size, weights = ws, axis = 1)
+    sample_set = learn_set.sample(n = sample_size, weights = ws, replace = True, axis = 1)
     return DTree(data = sample_set)
 
 def update_weights(D, h_t, y, error_t):
@@ -72,5 +72,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-	
