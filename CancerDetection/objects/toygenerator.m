@@ -43,4 +43,4 @@ B(:,11) = random('bino',18,.4,500,1);
 
 C = [ A; B];
 
-csvwrite('thousandtoy.csv', C)
+csvwrite('thousandtoytest.csv', C)

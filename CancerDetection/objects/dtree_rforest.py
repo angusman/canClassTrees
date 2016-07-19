@@ -1,34 +1,61 @@
 
 from pprint import pprint as pp
-
+import operator
 import numpy as np
-import pandas as pd
 
-class dtree:
+class dtree_rforest:
 
 	
 	# Basic decision tree object
 
-	def __init__(self, data = None, labelcol = None):
+	def __init__(self, data = None, labelcol = None, weights = None, nfeatures = None):
 		# can be initalized without data or cancercol
-		self.label = labelcol
-		full_df = data
-		tree_dict = {}
+		self.label = labelcol               
+		self.featureweights = weights
+		self.full_df = data
+		self.tree_dict = {}
+		self.nfeatures = nfeatures
 		return None
+ 
+ 
+	def rforest_weights(self, tfeatures = None, nfeatures = None):
+		# function to generate random feature selection w/o replacement
+            if nfeatures > tfeatures:
+                nfeatures = tfeatures
+                
+            weights = [0]*tfeatures
+            possible = list(range(0,tfeatures))
+            selection = list([])
+            
+            for i in range(0,nfeatures):
+                indx = np.random.randint(0, high = tfeatures-i)
+                selection.append(possible[indx])
+                possible.remove(possible[indx])
+                
+            for x in selection:
+                weights[x] = 1
+            
+            return weights
+
 
 	def entropy(self, data = None):
 		# calculate entropy of a set
+		# we need log
+		from math import log
+
+		# defining log base 2
+		log2 = lambda x: log(x)/log(2)
 
 		# get the labels and counts from the given data set
-		results = data.label.value_counts()
+		results = data.iloc[:,self.label].value_counts()
 		
 		# inital entropy is 0
 		ent=0.0
 
 		# loop over the label types and calculate entropy
 		for r in results.keys():
-			p = float(results[r])/len(data)
-			ent = ent - p*np.log2(p)
+			p= float(results[r])/len(data)
+			ent=ent-p*log2(p)
   		
 		return ent
 
@@ -77,6 +104,15 @@ class dtree:
 		for col in col_range:
 			infogain, value = self.information_gain(data = data, column = col)
 
+			
+                  # rforest weights
+			self.featureweights = self.rforest_weights(tfeatures = data.shape[1]-1, nfeatures = self.nfeatures)
+                
+                # if weights are used then apply weighting to information gain
+			# Note: not currently tested
+			if self.featureweights != None:
+				infogain *= self.featureweights[col-1]
+
 			# if we get a top information gain then we save that and continue
 			if infogain >= maxinfogain:
 				maxinfogain = infogain
@@ -87,17 +123,21 @@ class dtree:
 		# third, split along the column and return the left and right sets
 		leftset, rightset = self.set_splitter(data = data,  column = targetcolumn, value = targetvalue)
 
-		return leftset, rightset, targetcolumn, targetvalue
+		return leftset, rightset, targetcolumn, targetvalue, maxinfogain
 
 	def node_tree(self, data = None, min_entropy = None, tree_dict = None):
 		# recusively split the tree until all nodes h ave entropy less than min_entropy
-		node_counts = dict(data.label.value_counts())
+		node_counts = dict(data.iloc[:,self.label].value_counts())
 		tree_dict["stats"] = { "training_points" : len(data),
 							 "point_composition" : node_counts,
 							 "node_entropy" : self.entropy(data = data) }
 
 		if self.entropy(data = data) > min_entropy:
-			leftset, rightset, targetcolumn, targetvalue = self.find_best_split(data)
+			leftset, rightset, targetcolumn, targetvalue, infogain = self.find_best_split(data)
+
+			if infogain <= .0000001:
+				return tree_dict
+
 			tree_dict["column"] = targetcolumn
 			tree_dict["value"] = targetvalue
 			tree_dict["leftnode"] = self.node_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
@@ -107,7 +147,7 @@ class dtree:
 
 		return tree_dict
 
-	def bulid_tree(self, data = None, min_entropy = None, tree_dict = None):
+	def build_tree(self, data = None, min_entropy = None, tree_dict = None):
 		self.tree_dict = self.node_tree(data = data, min_entropy = min_entropy, tree_dict = {})
 
 		return self.tree_dict
@@ -129,6 +169,7 @@ class dtree:
 			prediction = self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict)
 			row_pred.append(prediction)
 
+
 		sample['pred'] = row_pred
 		prediction_df = sample
 		return prediction_df
@@ -136,20 +177,24 @@ class dtree:
 	def predict_row(self, samplerow = None, tree_dict = None):
 		# helper recusvice function for predict_df
 		# note this assumes that the label occupies the first column
+
+
+		value = list(tree_dict.values())
 		keys = list(tree_dict.keys())
+		v = list(tree_dict['stats']['point_composition'].values())
+		k = list(tree_dict['stats']['point_composition'].keys())
 		prediction = None
-		
 		# while we still have nodes to continue along for keep digging down
 		if "leftnode" in keys:
+
 			if samplerow.iloc[tree_dict["column"]-1] > tree_dict["value"]:
 				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["leftnode"])
-			elif samplerow.iloc[tree_dict["column"]-1] <= tree_dict["value"]:
 
+			elif samplerow.iloc[tree_dict["column"]-1] <= tree_dict["value"]:
 				prediction = self.predict_row(samplerow = samplerow, tree_dict = tree_dict["rightnode"])
+
 		if "leftnode" not in keys:
-			# sorry for stacking alot of functions into a line
-			prediction = (list(tree_dict["stats"]["point_composition"].keys())[0])
+			prediction = k[v.index(max(v))]
 			return prediction
 
 		return prediction
-		
