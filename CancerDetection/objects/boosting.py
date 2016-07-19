@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from dtree import DTree
 
 """Fake Data Scenario
 
@@ -15,21 +16,51 @@ where +1 is "bad" and -1 is "good." You're not sure what these labels are suppos
 to mean precisely.
 """
 LEARN = pd.DataFrame(np.random.randn(100, 100))
-TEST = pd.DataFrame(np.random.randn(100, 25))
+TEST = pd.DataFrame(np.random.randn(25, 100))
 CLASSIFICATION = np.random.randint(0, high=2, size=25)
 
+
+DT = pd.read_table('imputed_bladder.txt')
+DT = DT.transpose()
+
 def num_observations(df):
-    return df.shape[1]
+    return df.shape[0]
     
 
 def grow_tree(ws, learn_set, sample_size):
     """Grow a decision tree using given weights ws and DataFrame learn_set"""
-    sample_set = learn_set.sample(n = sample_size, weights = ws, replace = True, axis = 1)
+    sample_set = learn_set.sample(n = sample_size, weights = ws,
+                                  replace = True, axis = 0)
     return DTree(data = sample_set)
 
+def learn_error(D, h_t, y):
+    n = len(D)
+    err = 0
+    
+    for i in xrange(n):
+        if h_t[i] != y[i]:
+            err = err + D[i]
+    
+    return err
+
 def update_weights(D, h_t, y, error_t):
-    """IMPLEMENT"""
-    return D
+    n = len(D)
+    Dnew = np.zeros(n)
+    
+    # numerically stable way to compute e^(-al_t) and e^(al_t)
+    enalt = np.sqrt(error_t/(1 - error_t))
+    ealt = np.sqrt((1 - error_t)/error_t)
+    
+    for i in xrange(n):
+        if h_t[i] == y[i]:
+            Dnew[i] = D[i]*enalt
+        else:
+            Dnew[i] = D[i]*ealt
+    
+    # normalize
+    Z = sum(Dnew)
+    Dnew = (1/Z)*Dnew
+    return Dnew
 
 def my_booster(learn_set, test_x, test_y, sampling_size, num_boosts):
     """AdaBoost, learn_set is the learning set

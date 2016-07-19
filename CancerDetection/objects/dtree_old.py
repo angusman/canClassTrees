@@ -1,6 +1,9 @@
 
 from pprint import pprint as pp
-import operator
+
+import numpy as np
+import pandas as pd
+
 
 class dtree:
 
@@ -17,11 +20,6 @@ class dtree:
 
 	def entropy(self, data = None):
 		# calculate entropy of a set
-		# we need log
-		from math import log
-
-		# defining log base 2
-		log2 = lambda x: log(x)/log(2)
 
 		# get the labels and counts from the given data set
 		results = data.iloc[:,self.label].value_counts()
@@ -31,8 +29,8 @@ class dtree:
 
 		# loop over the label types and calculate entropy
 		for r in results.keys():
-			p= float(results[r])/len(data)
-			ent=ent-p*log2(p)
+			p = float(results[r])/len(data)
+			ent = ent - p*np.log2(p)
   		
 		return ent
 
