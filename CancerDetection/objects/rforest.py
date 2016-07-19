@@ -71,7 +71,7 @@ class rforest:
         ### find the mode of binary labeling (WARNING!! hardcoded for "A" and "B")
         import numpy as np
     
-        label1count = np.sum(labels == "A", axis = 1)
+        label1count = np.sum(labels == 0, axis = 1)
         label2count = label1count - len(self.forest)
         
         # +1 if "A", -1 if "B", 0 if tie
@@ -80,15 +80,15 @@ class rforest:
         prediction_mode = []
         for i in range(len(signs)):
             if signs[i] == 1:
-                prediction_mode.append("A")
+                prediction_mode.append(0)
             elif signs[i] == -1:
-                prediction_mode.append("B")
+                prediction_mode.append(1)
             else:
                 guess = np.random.randint(0,2)
                 if guess == 0:
-                    prediction_mode.append("A")
+                    prediction_mode.append(0)
                 else:
-                    prediction_mode.append("B")
+                    prediction_mode.append(1)
                     
         return prediction_mode
         
