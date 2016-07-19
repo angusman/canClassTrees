@@ -2,6 +2,7 @@
 from pprint import pprint as pp
 
 import numpy as np
+import random
 import pandas as pd
 
 
@@ -10,8 +11,12 @@ class dtree:
 	
 	# Basic decision tree object
 
-	def __init__(self, data = None, labelcol = None, weights = None):
+	def __init__(self, data = None, labelcol = None, weights = None, randfeatures = False, rfeaturen = None):
 		# can be initalized without data or cancercol
+		if rfeaturen == None and randfeatures == True:
+			print("specfiy number of randome features to select on each node")
+		self.rfeatn = rfeaturen
+		self.rfeatures = randfeatures
 		self.label = labelcol
 		self.featureweights = weights
 		self.full_df = data
@@ -65,10 +70,17 @@ class dtree:
 	def find_best_split(self, data = None):
 		# given a full dataset find the best column to split on
 
+
 		# find column range to check
 		num_cols = len(data.columns)
 		col_range = list(range(0,num_cols))
 		col_range.remove(self.label)
+
+		if self.rfeatures:
+			col_range = random.sample(range(1,num_cols), self.rfeatn)
+		else:
+			col_range = list(range(0,num_cols))
+			col_range.remove(self.label)
 
 		# second loop over columns to try find one with highest information gain.
 		# setting starting infogain and targetcolumn
