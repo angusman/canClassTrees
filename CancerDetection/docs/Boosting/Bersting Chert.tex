@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{mathpazo}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\newcommand{\vct}[1]{\ensuremath{\mathbf{#1}}}
+
+\DeclareMathOperator{\vvar}{Var}
+\DeclareMathOperator{\sgnn}{sign}
+
+\title{Boosting Charts}
+\author{Karl Winterling}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{High Level}
+
+Let $H_{0i}$ be the event that tissue sample $\mathbf{x}_i$ is cancerous.
+
+\begin{itemize}
+\item \textbf{Input:} weak learner algorithm $L$ (classification error $\epsilon < 1/2$), preprocessed learning set $(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_n, y_n)$ where $\mathbf{x}_i$ is a vector of features representing a sample and $y_i = 1$ for ``yes'' ($H_{0 i}$ is true) and $y_i = -1$ for ``no'' ($H_0$ is false), number of ``boosts'' $N$. 
+\item \textbf{Output:} Strong classifier $C$.
+\item Let $D_1$ define a probability distribution so that $D_{1i}$ is the probability of choosing $\mathbf{x}_i$ in a sample.
+\item Pick a test set
+\item Do the following $N$ times
+\begin{itemize}
+\item Use $D_t$ to sample the $\vct{x}_i$ with replacement to produce a learning set $S_t = \{(\mathbf{x}_i, y_i)\}$
+\item Train $L$ on $S_t$ to produce a classifier $C_t$.
+\item Determine the error of $C_t$ on the entire set by comparing each $C_t (\vct{x}_i)$ to $y_i$ and weighting by $D_t$.
+\item Get $\alpha_t$, where $\alpha_t = 0$ means $C_t$ is a fair coin flip and higher $\alpha_t$ means $C_t$ is better.
+\item Use the error to weight $C_t$ and add it to the strong classifier $C$.
+\item Update $D_t$ to $D_{t + 1}$ to so that $S_{t + 1}$ has more points $C_t$ classified incorrectly.
+\end{itemize}
+\item Return $C$
+\end{itemize}
+
+\section*{Low Level}
+
+\begin{itemize}
+\item Determine the error $\epsilon_t$ of $C_t$
+\begin{itemize}
+\item Let
+\[
+\epsilon_t = \sum_{C_t \left(\mathbf{x}_i\right) \neq y_i} D_{t i}
+\]
+Define a ``convenient'' value,
+\[
+\alpha_t = \frac{1}{2} \log \left( \frac{1 - \epsilon_t}{\epsilon_t} \right) = \log \left(\sqrt{{\epsilon_t}^{-1} - 1}\right)
+\]
+A bigger $\alpha_t$ means $\epsilon_t$ is smaller. Think of $\alpha_t$ as a measure of how much $C_t$ knows
+\end{itemize}
+\item Update to $D_{t + 1, i} = Z D_{t i} e^{-\alpha_t}$ if $C_t(\mathbf{x}_i) = y_i$ or $D_{t + 1, i} = Z D_{t i} e^{\alpha_t}$ (don't hard code this!).
+\begin{itemize}
+\item $C_{t + 1}$ needs to work on what $C_t$ got wrong.
+\item Makes sense if $\epsilon_t < 1/2$ (the weak learner $L$ is better than classifying by flipping a fair coin), so $\alpha_t > 0$.
+\end{itemize}
+\item Use $C$ to classify $\mathbf{x}$ by,
+\[
+C(\mathbf{x}) = \sgnn \left(\sum_{t = 1}^N \alpha_t C_t (\mathbf{x}) \right)
+\]
+\begin{itemize}
+\item We give more weight to a learner $C_t$ if $\epsilon_t$ is smaller (and therefore $\alpha_t$ is larger, but we're careful not to make $\alpha_t$ too big).
+\item If a weak learner is similar to a coin flip, $\alpha_t$ is close to $0$.
+\end{itemize}
+\end{itemize}
+
+\end{document}
