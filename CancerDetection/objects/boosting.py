@@ -4,72 +4,81 @@ import pandas as pd
 from dtree import dtree
 
 
+class MyAdaBooster:
+    LearnClass = dtree
     
-
-def grow_tree(ws, learn_set, sample_size):
-    """Grow a decision tree using given weights ws and DataFrame learn_set"""
-    sample_set = learn_set.sample(n = sample_size, weights = ws,
-                                  replace = True, axis = 0)
-    return DTree(data = sample_set)
-
-def learn_error(D, h_t, y):
-    n = len(D)
-    err = 0
+    def __init__(self, data = None, labelcol = None, num_boosts):
+        self.label = labelcol
+        self.full_df = data
+        self.num_obs = data
+        self._learners = self.boost(num_boosts)
+           
+    def predict_row(self, observation):
+        """Classify an observation."""
+        hypothesis_sum = 0
+        
+        for learner in self._learners:
+            alpha_t = learner['alpha']
+            tree_t = learner['tree']
+            h_t = tree_t.predict(observation)
+            hypothesis_sum = hypothesis_sum + alpha_t*h_t
+        
+        return hypothesis_sum
     
-    for i in xrange(n):
-        if h_t[i] != y[i]:
-            err = err + D[i]
     
+    def _n_obs(df):
+        return df.shape[0]
     
-    # numerically stable way to compute e^(-al_t) and e^(al_t)
-    enalt = np.sqrt(error_t/(1 - error_t))
-    ealt = np.sqrt((1 - error_t)/error_t)
+    def _grow_learner(ws, learn_set, sample_size):
+        """Grow a learner from a sample of learn_set with given weights ws."""
+        sample_set = learn_set.sample(n = sample_size, weights = ws, replace = True)
+        return dtree(data = sample_set)
     
-    for i in xrange(n):
-        if h_t[i] == y[i]:
-            Dnew[i] = D[i]*enalt
-        else:
-            Dnew[i] = D[i]*ealt
+    def _learn_error(D, h_t, y):
+        n = len(D)
+        err = 0
+        
+        for i in xrange(len(D)):
+            if h_t[i] != y[i]:
+                err = err + D[i]
+        return err
     
-    # normalize
-    Z = sum(Dnew)
-    Dnew = (1/Z)*Dnew
-    return Dnew
-
-def my_booster(learn_set, test_x, test_y, sampling_size, num_boosts):
-    """AdaBoost, learn_set is the learning set
-     test_x is a df, test_y is a series. Return a list of learner objects"""
-    k = num_boosts
-    
-    # number of observations
-    num_obs = num_observations(learn_set)
-    learners = []
-    
-    # Sum of alpha weighted hypotheses
-    hsum = 0
-    
-    # initial weights
-    D = (1.0/num_obs)*np.ones(num_obs)
-    
-    while k > 0:
-        tree_t = grow_tree(D, learn_set)
-        h_t = tree_t.classify(test_x)
-        error_t = learn_error(D, h_t, y)
-        alpha_t = 0.5*np.log((1.0 - error_t)/error_t)
-        learners.append({'alpha': alpha_t, 'tree': learner_t, 'D': D})
-        D = update_weights(D, h_t, y, error_t)
-        k = k - 1
-    return learners
-
-def boost_classify(learners, vct):
-    """Run a set of boosted learners"""
-    hypothesis_sum = 0
-    for learner in learners:
-        alpha_t = learner['alpha']
-        tree_t = learner['tree']
-        h_t = tree_t.classify(vct)
-        hypothesis_sum = hypothesis_sum + alpha_t*h_t
-    
-    return np.sign(hypothesis_sum)
-
+    def _update_weights(D, h_t, y, error_t):
+        n = len(D)
+        Dnew = np.zeros(n)
+        
+        # numerically stable way to compute e^(-al_t) and e^(al_t)
+        enega = np.sqrt(error_t/(1 - error_t))
+        eposa = np.sqrt((1 - error_t)/error_t)
+        
+        for i in xrange(n):
+            if h_t[i] == y[i]:
+                Dnew[i] = D[i]*enega
+            else:
+                Dnew[i] = D[i]*eposa
+        
+        Z = sum(Dnew)
+        Dnew = (1.0/Z)*Dnew
+        
+        return Dnew
+        
+        def boost(self, num_boosts):
+            k = num_boosts
+            y = self.labelcol
+            
+            learners = []
+            
+            # initial weights
+            D = (1.0/self.num_obs)*np.ones(self.num_obs)
+            
+            while k > 0:
+                tree_t = self._grow_learner(D, self.full_df)
+                h_t = tree_t.predict_row(sample = self.full_df)
+                error_t = self._learn_error(D, h_t, y)
+                alpha_t = 0.5*np.log((1.0 - error_t)/error_t)
+                learners.append({'alpha': alpha_t, 'tree': tree_t, 'D': D})
+                D = self._update_weights(D, h_t, y, error_t)
+                k = k - 1
+            
+            return learners
 
