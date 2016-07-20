@@ -1,4 +1,4 @@
-from dtree_rforest import dtree_rforest
+from dtree import dtree
 class rforest:
     
     
@@ -14,8 +14,11 @@ class rforest:
     def build_forest(self, data = None, ktrees = 10, msamples = None, nfeatures = None):
         ### default msamples to length of data (WARNING!! not actually None default!!)
         if msamples == None:        
-            msamples = len(data)        
-        
+            msamples = len(data)
+        # if number of features exceeds number of total features
+        if nfeatures == "bagging" or nfeatures > data.shape[1]-1:  
+            nfeatures = data.shape[1]-1
+            
         # train classifiers
         
         # initialize list of classifiers
@@ -24,7 +27,7 @@ class rforest:
         # build k tree classifiers
         for i in range(int(ktrees)):
             data_tc = self.sample_data(data = data, msamples = msamples)
-            mytree = dtree_rforest(data = data_tc, labelcol = 0, nfeatures = nfeatures)
+            mytree = dtree(data = data_tc, labelcol = 0, randfeatures = True, rfeaturen = nfeatures)
             self.forest.append(mytree)
             
             
