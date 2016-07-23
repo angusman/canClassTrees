@@ -1,4 +1,4 @@
-from dtree import dtree
+from objects.dtree import dtree
 class rforest:
     
     
@@ -23,11 +23,13 @@ class rforest:
         
         # initialize list of classifiers
         self.forest = []
+        self.posvalues = data.iloc[:,self.label]
         
         # build k tree classifiers
         for i in range(int(ktrees)):
             data_tc = self.sample_data(data = data, msamples = msamples)
             mytree = dtree(data = data_tc, labelcol = 0, randfeatures = True, rfeaturen = nfeatures)
+            mytree.build_tree(data = data_tc, min_entropy = .1)
             self.forest.append(mytree)
             
             
@@ -53,46 +55,56 @@ class rforest:
 
         
         # make sure build_forest has been run
-        if self.forest == {}:
+        if self.forest == []:
             return "no forest found"
             
         # prepare a vector to put predictions into    
-        subpredictions = pd.DataFrame()        
-        
+        subpredictions = pd.DataFrame()
         # use tree classifiers to predict
+
+        # setting up vector told dictionary of predictions, each entry contains a dictionary of votes from each tree
+        predictvect = []
+        # populate the prediction vector with dictionaries containing zero votes for all possiblities
+        
+        for i in range(len(sample)):
+            pdict = {}
+            for val in self.posvalues:
+                pdict[val] = 0
+            predictvect.append(pdict)
+
+        # now prediction 
         for i in range(len(self.forest)):
-            self.forest[i].tree_dict = self.forest[i].build_tree(data = self.forest[i].full_df, min_entropy = .1, tree_dict = {})
-            prediction = self.forest[i].predict_df(sample).iloc[:,-1]
-            subpredictions = pd.concat([subpredictions,prediction], axis = 1)
+
+            # get the prediction
+            prediction = self.forest[i].predict_df(sample)['pred']
+
+            # increment the proper value of prediction in the predictvect
+            for idx,val in enumerate(prediction):
+                predictvect[idx][val] = predictvect[idx][val]+1
+
+            # subpredictions = pd.concat([subpredictions,prediction], axis = 1)
               
-        sample['pred'] = self.compute_mode(labels = subpredictions)
+
+        sample["pred"] = self.compute_mode(predvect = predictvect)
         prediction_df = sample
         return prediction_df
       
       
-    def compute_mode(self, labels = None):
-        ### find the mode of binary labeling (WARNING!! hardcoded for "A" and "B")
+    def compute_mode(self, predvect = None):
+        # altered to accept prediction vector as made in predict_df
         import numpy as np
-    
-        label1count = np.sum(labels == 0, axis = 1)
-        label2count = label1count - len(self.forest)
-        
-        # +1 if "A", -1 if "B", 0 if tie
-        signs = np.sign(label1count+label2count)
-        
-        prediction_mode = []
-        for i in range(len(signs)):
-            if signs[i] == 1:
-                prediction_mode.append(0)
-            elif signs[i] == -1:
-                prediction_mode.append(1)
-            else:
-                guess = np.random.randint(0,2)
-                if guess == 0:
-                    prediction_mode.append(0)
-                else:
-                    prediction_mode.append(1)
-                    
-        return prediction_mode
+        predictions = []
+
+        for idx, val in enumerate(predvect):
+            # find the max value for the keys of the prediction dictionary
+            k = list(val.keys())
+            v = list(val.values())
+            idxpredict = k[v.index(max(v))]
+
+            # append that to the list of predictions
+            predictions.append(idxpredict)
+
+        return predictions
+
         
         

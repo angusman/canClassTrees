@@ -82,6 +82,7 @@ class dtree:
 			col_range = list(range(0,num_cols))
 			col_range.remove(self.label)
 
+
 		# second loop over columns to try find one with highest information gain.
 		# setting starting infogain and targetcolumn
 		maxinfogain = 0
@@ -148,7 +149,6 @@ class dtree:
 		row_pred = []
 		# loop over the rows and use the predict_row function on that row
 		for k in range(len(sample)):
-			# print(self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict))
 			prediction = self.predict_row(samplerow = sample.iloc[k,:], tree_dict = self.tree_dict)
 			row_pred.append(prediction)
 
