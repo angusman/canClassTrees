@@ -1,4 +1,6 @@
 from objects.dtree import dtree
+from pprint import pprint as pp
+
 class rforest:
     
     
@@ -11,14 +13,16 @@ class rforest:
         return None
     
     
-    def build_forest(self, data = None, ktrees = 10, msamples = None, nfeatures = None):
+    def build_forest(self, data = None, ktrees = 10, msamples = None, nfeatures = None, randfeatures = None):
         ### default msamples to length of data (WARNING!! not actually None default!!)
         if msamples == None:        
-            msamples = len(data)
+            self.msamples = len(data)
+        else:
+            self.msamples = msamples
         # if number of features exceeds number of total features
         if nfeatures == "bagging" or nfeatures > data.shape[1]-1:  
             nfeatures = data.shape[1]-1
-            
+
         # train classifiers
         
         # initialize list of classifiers
@@ -27,8 +31,9 @@ class rforest:
         
         # build k tree classifiers
         for i in range(int(ktrees)):
+            print('building tree',i, 'of ',int(ktrees))
             data_tc = self.sample_data(data = data, msamples = msamples)
-            mytree = dtree(data = data_tc, labelcol = 0, randfeatures = True, rfeaturen = nfeatures)
+            mytree = dtree(data = data_tc, labelcol = self.label, randfeatures = True, rfeaturen = nfeatures)
             mytree.build_tree(data = data_tc, min_entropy = .1)
             self.forest.append(mytree)
             
@@ -74,18 +79,18 @@ class rforest:
 
         # now prediction 
         for i in range(len(self.forest)):
-
             # get the prediction
             prediction = self.forest[i].predict_df(sample)['pred']
 
             # increment the proper value of prediction in the predictvect
             for idx,val in enumerate(prediction):
+
                 predictvect[idx][val] = predictvect[idx][val]+1
 
             # subpredictions = pd.concat([subpredictions,prediction], axis = 1)
               
-
         sample["pred"] = self.compute_mode(predvect = predictvect)
+
         prediction_df = sample
         return prediction_df
       

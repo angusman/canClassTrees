@@ -28,11 +28,12 @@ class dtree:
 
 		# get the labels and counts from the given data set
 		results = data.iloc[:,self.label].value_counts()
-		
 		# inital entropy is 0
 		ent=0.0
 
 		# loop over the label types and calculate entropy
+
+
 		for r in results.keys():
 			p = float(results[r])/len(data)
 			ent = ent - p*np.log2(p)
@@ -47,16 +48,9 @@ class dtree:
 
 		return leftset, rightset
 
-	def find_cutoff_value(self, data = None, column = None):
-		# for a given datacol find the aveage value and return this as the cut off value of splitting
-		# this could be expanded by in the future to find a better splitting point than just the mean of the data.
-		value = data.iloc[:,column].mean()
 
-		return value
-
-	def information_gain(self, data = None, column = None):
+	def information_gain(self, data = None, column = None, value = None):
 		# calculate information gain for a split on a given column splitting value found from find_cutoff_value
-		value = self.find_cutoff_value(data = data, column = column)
 
 		# split the data into left and right sets
 		leftset, rightset = self.set_splitter(data = data, column = column, value = value)
@@ -64,7 +58,7 @@ class dtree:
 		# calculate the information gain of split
 		infogain = self.entropy(data) - ( float(len(leftset)) / len(data) * self.entropy(leftset) + float(len(rightset)) / len(data) * self.entropy(rightset))
 
-		return infogain, value
+		return infogain
 
 	
 	def find_best_split(self, data = None):
@@ -77,6 +71,7 @@ class dtree:
 		col_range.remove(self.label)
 
 		if self.rfeatures:
+
 			col_range = random.sample(range(1,num_cols), self.rfeatn)
 		else:
 			col_range = list(range(0,num_cols))
@@ -88,20 +83,17 @@ class dtree:
 		maxinfogain = 0
 		targetcolumn = -1
 		targetvalue = 0
+		colaverages = list(data.mean(axis = 0))
 
-		for col in col_range:
-			infogain, value = self.information_gain(data = data, column = col)
-
-			# if weights are used then apply weighting to information gain
-			# Note: not currently tested
-			if self.featureweights != None:
-				infogain *= self.featureweights[col-1]
+		for idx, col in enumerate(col_range):
+			infogain = self.information_gain(data = data, column = col, value = colaverages[col])
 
 			# if we get a top information gain then we save that and continue
 			if infogain >= maxinfogain:
 				maxinfogain = infogain
 				targetcolumn = col
-				targetvalue = value
+				targetvalue = colaverages[col]
+
 
 
 		# third, split along the column and return the left and right sets
@@ -119,14 +111,14 @@ class dtree:
 		if self.entropy(data = data) > min_entropy:
 			leftset, rightset, targetcolumn, targetvalue, infogain = self.find_best_split(data)
 
-			if infogain <= .0000001:
+
+			if infogain <= .1:
 				return tree_dict
 
 			tree_dict["column"] = targetcolumn
 			tree_dict["value"] = targetvalue
 			tree_dict["leftnode"] = self.node_tree(data = leftset, min_entropy = min_entropy, tree_dict = {})
 			tree_dict["rightnode"] = self.node_tree(data = rightset, min_entropy = min_entropy, tree_dict = {})
-
 
 
 		return tree_dict
