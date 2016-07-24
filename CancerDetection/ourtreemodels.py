@@ -42,7 +42,7 @@ if __name__ == '__main__':
 		# bulid forrest
 		print("buliding random forest")
 		myforest = rforest(data = train_data, labelcol = labelcol)
-		sampleforest = myforest.build_forest(data = train_data, ktrees = 20, msamples = len(leuk), nfeatures = nfeatures)
+		sampleforest = myforest.build_forest(data = train_data, ktrees = 5, msamples = len(leuk), nfeatures = nfeatures)
 		# predict on test data
 		# print(sampleforest)
 		print("getting test data ready for predicting")
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 		test_pred_df['correct'] = test_data.iloc[:,labelcol] == test_pred_df["pred"]
 		correct_precentage = float(len(test_pred_df[test_pred_df['correct'] == True]))/len(test_pred_df)
 		accuracy.append(correct_precentage)
-		print("finishing fold number", idx, 'of', len(split_data), 'accuracy = ', correct_precentage)
+		print("finishing fold number", idx + 1, 'of', len(split_data), 'accuracy = ', correct_precentage)
 
 	# print out accuracy results
 	print('accuracy vector',accuracy)

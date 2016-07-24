@@ -31,7 +31,7 @@ class rforest:
         
         # build k tree classifiers
         for i in range(int(ktrees)):
-            print('building tree',i, 'of ',int(ktrees))
+            print('building tree',i +1, 'of ',int(ktrees))
             data_tc = self.sample_data(data = data, msamples = msamples)
             mytree = dtree(data = data_tc, labelcol = self.label, randfeatures = True, rfeaturen = nfeatures)
             mytree.build_tree(data = data_tc, min_entropy = .1)
