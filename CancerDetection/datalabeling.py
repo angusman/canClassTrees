@@ -13,14 +13,15 @@ if __name__ == '__main__':
 
 
 
-	# # colon
-	# colon = pd.read_csv("data/DNA/imputed_colon.txt", sep = ' ', header = None)
-	# colon = colon.transpose()
-	# print(colon.shape)
-	# colon["Cancer"] = 0
-	# colon.set_value(list(range(40,63)), "Cancer", -1)
-	# colon.set_value(list(range(0,40)), "Cancer", 1)
-	# print(colon)
+	# colon
+	colon = pd.read_csv("data/DNA/imputed_colon.txt", sep = ' ', header = None)
+	colon = colon.transpose()
+	print(colon.shape)
+	colon["Cancer"] = 0
+	colon.set_value(list(range(40,63)), "Cancer", -1)
+	colon.set_value(list(range(0,40)), "Cancer", 1)
+	colon = colon.iloc[0:62,:]
+	print(colon)
 
 	# leuk
 	# leuk = pd.read_csv("data/DNA/imputed_leuk.txt", sep = '\t', header = None)
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 	# # write them all out
 
 	# bladder.to_csv('data/DNA/labeled_baddler.csv')
-	# colon.to_csv('data/DNA/labeled_colon.csv')
+	colon.to_csv('data/DNA/labeled_colon.csv')
 	# leuk.to_csv('data/DNA/labeled_leuk.csv')
 	# liver.to_csv('data/DNA/labeled_liver.csv')
 	# prostate.to_csv('data/DNA/labeled_prostate.csv')
