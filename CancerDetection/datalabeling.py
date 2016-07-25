@@ -23,12 +23,12 @@ if __name__ == '__main__':
 	# print(colon)
 
 	# leuk
-	leuk = pd.read_csv("data/DNA/imputed_leuk.txt", sep = '\t', header = None)
-	leuk = leuk.transpose()
-	leuk['Cancer'] = 0
-	leuk.set_value(list(range(48,73)), "Cancer", -1)
-	leuk.set_value(list(range(0,48)), "Cancer", 1)
-	print('leuk',leuk)
+	# leuk = pd.read_csv("data/DNA/imputed_leuk.txt", sep = '\t', header = None)
+	# leuk = leuk.transpose()
+	# leuk['Cancer'] = 0
+	# leuk.set_value(list(range(48,73)), "Cancer", -1)
+	# leuk.set_value(list(range(0,48)), "Cancer", 1)
+	# print('leuk',leuk)
 
 	# # liver
 	# liver = pd.read_csv("data/DNA/imputed_liver.txt", sep = '\t', header = None)
@@ -40,10 +40,12 @@ if __name__ == '__main__':
 	# print(liver["Cancer"])
 
 
-	# # prostate
+	# prostate
 	# prostate = pd.read_csv("data/DNA/imputed_prostate.csv", header = None)
 	# print(prostate)
 	# print(prostate.shape)
+	# prostate = prostate.rename(index=str, columns={0: "Cancer"})
+	# print(prostate)
 
 	# # write them all out
 
