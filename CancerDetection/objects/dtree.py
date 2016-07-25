@@ -112,7 +112,8 @@ class dtree:
 			leftset, rightset, targetcolumn, targetvalue, infogain = self.find_best_split(data)
 
 
-			if infogain <= .1:
+			if infogain <= .000001:
+				print("I aborted because of shitty infogain")
 				return tree_dict
 
 			tree_dict["column"] = targetcolumn

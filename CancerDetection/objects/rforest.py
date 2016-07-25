@@ -1,5 +1,6 @@
 from objects.dtree import dtree
 import numpy as np
+from pprint import pprint as pp
 # from pprint import pprint as pp
 
 class rforest:
@@ -35,8 +36,10 @@ class rforest:
             print('building tree',i +1, 'of ',int(ktrees))
             data_tc = self.sample_data(data = data, msamples = msamples)
             mytree = dtree(data = data_tc, labelcol = self.label, randfeatures = True, rfeaturen = nfeatures)
-            mytree.build_tree(data = data_tc, min_entropy = .1)
+            treedict = mytree.build_tree(data = data_tc, min_entropy = .1)
             self.forest.append(mytree)
+
+
             
             
         return self.forest

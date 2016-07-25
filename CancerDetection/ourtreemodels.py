@@ -4,25 +4,28 @@
 #
 # 2) output cross-validation sets with results (i.e., indexes, classes?)
 #
-# 3) remove "Unnamed: 0" indexing column from data
+# 3) remove "Unnamed: 0" indexing column from data # done
 #
-# 4) numcols in line 60 will probably be effected by 3)... recommend len(df.columns)-1 after fix
+# 4) numcols in line 60 will probably be effected by 3)... recommend len(df.columns)-1 after fix # done
 #
 # 5) probably should just go ahead and add stuff we'll need for the bulk experiment format
-# (timestamp, running time, standard deviation calculation, etc.)
+# (etc.)
 
 from objects.rforest import rforest
 import pandas as pd
 import numpy as np
 from pprint import pprint as pp
 import random
+import datetime
+from timeit import default_timer as timer
 
 def split_df(df, partitions):
 
 	#df['partiton'] = np.random.randint(partitions, size = len(df))
 	R = random.sample(range(0, len(df)), len(df))
 	df['partiton'] = np.array(list(i % partitions for i in R))
-	print(df['partiton'])
+
+	# print(df['partiton'])
 	split_data = []
 	for k in range(partitions):
 		split_data.append(df[df['partiton'] == k])
@@ -56,14 +59,16 @@ def buildtestmodels(files, treenumbers, names, folds):
 		for df in split_data:
 			df.drop('partiton', axis=1, inplace=True)
 
-		labelcol = data.columns.get_loc("Cancer")
-		numcols = len(df.columns) - 2
+		
+		numcols = len(df.columns) - 1
 		nfeatures = int(np.floor(np.sqrt(numcols)))
    
 		for treenum in treenumbers:
 			rowdict = {}
 			accuracy = []
 
+			# start timing
+			start = timer()
 			for idx, df in enumerate(split_data):
 				print("starting fold number", idx+1, 'of', len(split_data))
 				# set up data to test on
@@ -72,6 +77,10 @@ def buildtestmodels(files, treenumbers, names, folds):
 				print("builing test/train sets")
 				train_list = (split_data[:idx] + split_data[idx+1 :]).copy()
 				train_data = pd.concat(train_list)
+
+				# not sure what is going on here we really shouldnt be including this column but doing so kills the accuracy. some bug with the column list when predicting
+				# train_data = train_data.iloc[:,1:]
+				labelcol = train_data.columns.get_loc("Cancer")
 
 				# bulid forrest
 				print("buliding random forest")
@@ -87,11 +96,14 @@ def buildtestmodels(files, treenumbers, names, folds):
 				test_pred_df = test_data
 				test_pred_df['pred'] = prediction['pred']
 
+
 				test_pred_df['correct'] = test_data.iloc[:,labelcol] == test_pred_df["pred"]
 				correct_precentage = float(len(test_pred_df[test_pred_df['correct'] == True]))/len(test_pred_df)
 				accuracy.append(correct_precentage)
 				print("finishing fold number", idx + 1, 'of', len(split_data), 'accuracy = ', correct_precentage)
 
+			# finish timing
+			end = timer()
 			# print out accuracy results	
 			print('accuracy vector',accuracy)
 			print('average accuracy',np.mean(accuracy))
@@ -101,11 +113,18 @@ def buildtestmodels(files, treenumbers, names, folds):
 			rowdict['cancertype'] = names[idxf]
 			rowdict['aveaccuracy'] = np.mean(accuracy)
 			rowdict['ntrees'] = treenum
+			rowdict['std'] = np.std(accuracy)
+			rowdict['timestamp'] = datetime.datetime.now()
+			rowdict['computationtime'] = (end-start)
 			rowlist.append(rowdict)
+			rowdict['maxsinglefold'] = max(accuracy)
+			rowdict['minsinglefold'] = min(accuracy)
 
 	# convert the rowlist into a dataframe and save it to a .csv
 	performance_df = pd.DataFrame(rowlist)
-	performance_df.to_csv('data/results/' +str(folds) + 'folds' +str(random.randint(1000,2000))+ 'perfomance.csv')
+	print(performance_df)
+	performance_df.to_csv('data/results/' +str(folds) + 'folds' +str(datetime.datetime.now())+ 'perfomance.csv')
+	return split_data
 
 
 
@@ -115,9 +134,14 @@ def buildtestmodels(files, treenumbers, names, folds):
 
 if __name__ == '__main__':
 
-	files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	treenumbers = [10,20,40,100, 200]
-	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	# files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	# treenumbers = [1,2,5,10,20,60,100]
+	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+
+	# for testing
+	files = ['labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['prostate', 'colon']
+	treenumbers = [1,2,5]
 
 	# # print(list_to_dict(treenumbers))
 
