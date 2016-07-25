@@ -1,3 +1,16 @@
+# TODO:
+# 1) review FOR loop changes (trying to only change data when moving to new data set
+# instead of between changes in tree numbers)
+#
+# 2) output cross-validation sets with results (i.e., indexes, classes?)
+#
+# 3) remove "Unnamed: 0" indexing column from data
+#
+# 4) numcols in line 60 will probably be effected by 3)... recommend len(df.columns)-1 after fix
+#
+# 5) probably should just go ahead and add stuff we'll need for the bulk experiment format
+# (timestamp, running time, standard deviation calculation, etc.)
+
 from objects.rforest import rforest
 import pandas as pd
 import numpy as np
@@ -6,7 +19,10 @@ import random
 
 def split_df(df, partitions):
 
-	df['partiton'] = np.random.randint(partitions, size = len(df))
+	#df['partiton'] = np.random.randint(partitions, size = len(df))
+	R = random.sample(range(0, len(df)), len(df))
+	df['partiton'] = np.array(list(i % partitions for i in R))
+	print(df['partiton'])
 	split_data = []
 	for k in range(partitions):
 		split_data.append(df[df['partiton'] == k])
@@ -32,21 +48,21 @@ def buildtestmodels(files, treenumbers, names, folds):
 	rowlist = []
 	for idxf, fil in enumerate(files):
 		# run each file
-		
+		print(fil)
+		data = pd.read_csv("data/DNA/" + fil)
+
+		split_data = split_df(data, folds)
+
+		for df in split_data:
+			df.drop('partiton', axis=1, inplace=True)
+
+		labelcol = data.columns.get_loc("Cancer")
+		numcols = len(df.columns) - 2
+		nfeatures = int(np.floor(np.sqrt(numcols)))
+   
 		for treenum in treenumbers:
 			rowdict = {}
-			print(fil)
-			data = pd.read_csv("data/DNA/" + fil)
-
-			split_data = split_df(data, folds)
-
-			for df in split_data:
-				df.drop('partiton', axis=1, inplace=True)
-
-			labelcol = data.columns.get_loc("Cancer")
 			accuracy = []
-			numcols = len(df.columns)
-			nfeatures = int(np.floor(np.sqrt(numcols)))
 
 			for idx, df in enumerate(split_data):
 				print("starting fold number", idx+1, 'of', len(split_data))
@@ -60,7 +76,7 @@ def buildtestmodels(files, treenumbers, names, folds):
 				# bulid forrest
 				print("buliding random forest")
 				myforest = rforest(data = train_data, labelcol = labelcol)
-				sampleforest = myforest.build_forest(data = train_data, ktrees = treenum, msamples = len(data), nfeatures = nfeatures)
+				sampleforest = myforest.build_forest(data = train_data, ktrees = treenum, msamples = len(train_data), nfeatures = nfeatures)
 				# predict on test data
 				# print(sampleforest)
 				print("getting test data ready for predicting")
@@ -106,6 +122,3 @@ if __name__ == '__main__':
 	# # print(list_to_dict(treenumbers))
 
 	buildtestmodels(files, treenumbers, names,5)
-
-
-

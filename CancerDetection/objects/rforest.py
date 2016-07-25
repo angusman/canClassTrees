@@ -1,5 +1,6 @@
 from objects.dtree import dtree
-from pprint import pprint as pp
+import numpy as np
+# from pprint import pprint as pp
 
 class rforest:
     
@@ -43,7 +44,6 @@ class rforest:
     
     def sample_data(self, data = None, msamples = None):
         # uniformly sample data with replacement
-        import numpy as np
     
         # bootstrap replicates take same number of samples as original
         row_indx = np.random.randint(0, high = len(data), size = msamples)
@@ -97,7 +97,6 @@ class rforest:
       
     def compute_mode(self, predvect = None):
         # altered to accept prediction vector as made in predict_df
-        import numpy as np
         predictions = []
 
         for idx, val in enumerate(predvect):

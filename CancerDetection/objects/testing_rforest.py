@@ -8,7 +8,7 @@ from pprint import pprint as pp
 if __name__ == '__main__':
     random.seed(87)             # seed for dtree samples
     np.random.seed(seed = 15)   # seed for rforest samples
-    data_df = pd.read_csv('thousandtoy.csv')
+    data_df = pd.read_csv('thousandtoy.csv') # !! This is being read incorrectly! Use no header!
 
     print("full toy data set")
     print(len(data_df))
