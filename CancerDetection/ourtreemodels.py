@@ -99,9 +99,9 @@ def buildtestmodels(files, treenumbers, names, folds):
 
 if __name__ == '__main__':
 
-	files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv']
+	files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
 	treenumbers = [10,20,40,100, 200]
-	names = ['leuk','bladder', 'liver', 'prostate']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
 
 	# # print(list_to_dict(treenumbers))
 

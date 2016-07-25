@@ -36,7 +36,7 @@ if __name__ == '__main__':
 	# liver["Cancer"] = 0
 	# liver.set_value(list(range(115,191)), "Cancer", -1)
 	# liver.set_value(list(range(8,112)), "Cancer", 1)
-	# liver.set_value(4, "Cancer", 1)
+	# liver.set_value(3, "Cancer", 1)
 	# print(liver["Cancer"])
 
 
@@ -50,6 +50,7 @@ if __name__ == '__main__':
 	# # write them all out
 
 	# bladder.to_csv('data/DNA/labeled_baddler.csv')
+	# colon.to_csv('data/DNA/labeled_colon.csv')
 	# leuk.to_csv('data/DNA/labeled_leuk.csv')
 	# liver.to_csv('data/DNA/labeled_liver.csv')
 	# prostate.to_csv('data/DNA/labeled_prostate.csv')
