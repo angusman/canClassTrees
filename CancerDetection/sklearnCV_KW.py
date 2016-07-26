@@ -43,7 +43,7 @@ def load_bladder():
     dset['labels'] = Y
     return dset
 
-def analyze_data(dataset):
+def analyze_data(ensemble_n_estimators, dataset):
     """Produce a dict structure of error and runtime values."""
     dsets = {'reduced': load_reduced,
             'leuk': load_leuk,
@@ -75,7 +75,7 @@ def analyze_data(dataset):
                 if key == 'dtree':
                     C = clf()
                 else:
-                    C = clf(n_estimators = 10)
+                    C = clf(n_estimators = ensemble_n_estimators)
                 classfd[cvkey] = sklcv.cross_val_score(C, X, Y, cv=cvnum)
             errordt[key] = classfd
         results[algorithm] = errordt
