@@ -72,7 +72,7 @@ def fix_y(nfolds, y):
     return y
 
 
-def do_classification(clfname, clf, x, y, cvnum, esizes):
+def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
     res = []
     print clfname
     if clfname == 'dtree':
@@ -81,12 +81,15 @@ def do_classification(clfname, clf, x, y, cvnum, esizes):
         err = sklcv.cross_val_score(C, x, y, cv=cvnum)
         stop = time()
         result = {}
+        result['dataset'] = dataset
         result['method'] = clfname
         result['trees'] = 1
         result['accuracy'] = err
-        result['mean'] = err
-        result['min'] = err
-        result['max'] = err
+        # only one conversion to np.array
+        errr = np.array(err)
+        result['mean'] = np.mean(errr)
+        result['min'] = np.min(errr)
+        result['max'] = np.max(errr)
         result['std'] = 0
         result['computationtime'] = stop - start
         
@@ -99,13 +102,15 @@ def do_classification(clfname, clf, x, y, cvnum, esizes):
             err = sklcv.cross_val_score(C, x, y, cv=cvnum)
             stop = time()
             result = {}
+            result['dataset'] = dataset
             result['method'] = clfname
             result['trees'] = n_trees
             result['accuracy'] = err
-            result['mean'] = np.mean(err)
-            result['min'] = np.min(err)
-            result['max'] = np.max(err)
-            result['std'] = np.std(err)
+            errr = np.array(err)
+            result['mean'] = np.mean(errr)
+            result['min'] = np.min(errr)
+            result['max'] = np.max(errr)
+            result['std'] = np.std(errr)
             result['computationtime'] = stop - start
             res.append(result)
         
@@ -147,7 +152,7 @@ def analyze_data(ensemble_sizes, dataset):
         cvruns = {}
         
         for cv, cvnum in cvs.iteritems():
-            cvruns[cv] = do_classification(algorithm, clf, X, Y, cvnum, ensemble_sizes)
+            cvruns[cv] = do_classification(algorithm, dataset, clf, X, Y, cvnum, ensemble_sizes)
         
         results[algorithm] = cvruns
     
@@ -176,11 +181,37 @@ def to_file(fname):
     pp(dct, stream=fl)
     fl.close()
 
-def to_spreadsheet(resdict):
-    """Make Pandas DataFrames, resdict is output from analyze_data()."""
-    dfs = []
+def to_dataframe(dsets):
+    """Make Pandas DataFrame with dsets."""
+    def fix_accuracy(dictionary_list):
+        """Change the accuracy np.array to the mean"""
+        ndl = dictionary_list
+        for i in xrange(len(dictionary_list)):
+            dictionary = dictionary_list[i]
+            dictionary['accuracy'] = dictionary['mean']
+            ndl[i] = dictionary
+        return ndl
+    num_trees = [2, 5, 10, 20]
+    dcts = {}
+    
+    for dset in iter(dsets):
+        dcts[dset] = analyze_data(num_trees, dset)
+    
+    dictionaries = []
+    for dset, dsetvals in dcts.iteritems():
+        for algorithm, algvals in dsetvals.iteritems():
+            for nkfold, dictlist in algvals.iteritems():
+                dlist = fix_accuracy(dictlist)
+                dictionaries = dictionaries + dlist
+    
+    df = pd.DataFrame(dictionaries)
+    return df
 
-to_file('skldt.json')
+#to_file('skldt.json')
+
+
+df = to_dataframe(['bladder', 'colon', 'leuk', 'liver'])
+df.to_csv('sklearndata.csv')
 
 # num_trees = [2, 5, 10, 20] # add 60, 100 on faster machines
 # dtt = analyze_data(num_trees, 'bladder')
