@@ -67,6 +67,22 @@ def load_liver():
     return dset
 
 
+def load_prostate():
+    def fix_y_helper(n):
+        if n == 1:
+            return -1
+        if n == 2:
+            return 1
+        else:
+            return 1
+    data = np.genfromtxt('data/DNA/labeled_prostate.csv',
+                        delimiter = ',', skip_header = 1)
+    X = data[:, 2:-1]
+    Y = map(fix_y_helper, data[:, 1])
+    dset = {}
+    dset['observations'] = X
+    dset['labels'] = Y
+    return dset
 
 
 
@@ -124,7 +140,8 @@ def analyze_data(ensemble_sizes, dataset):
             'leuk': load_leuk,
             'bladder': load_bladder,
             'colon': load_colon,
-            'liver': load_liver}
+            'liver': load_liver,
+            'prostate': load_prostate}
     dstf = dsets[dataset]
     dset = dstf()
     X = dset['observations']
@@ -136,7 +153,7 @@ def analyze_data(ensemble_sizes, dataset):
     results = {'dtree': {},
               'bagging': {},
               'randomforest': {},
-              'adaboost': {},}
+              'adaboost': {}}
     
     classifiers = {'dtree': skl.tree.DecisionTreeClassifier,
                    'bagging': BaggingClassifier,
@@ -181,7 +198,7 @@ def to_file(fname):
     pp(dct, stream=fl)
     fl.close()
 
-def to_dataframe(dsets):
+def to_dataframe(dsets, num_trees):
     """Make Pandas DataFrame with dsets."""
     def fix_accuracy(dictionary_list):
         """Change the accuracy np.array to the mean"""
@@ -191,7 +208,6 @@ def to_dataframe(dsets):
             dictionary['accuracy'] = dictionary['mean']
             ndl[i] = dictionary
         return ndl
-    num_trees = [2, 5, 10, 20]
     dcts = {}
     
     for dset in iter(dsets):
@@ -210,8 +226,12 @@ def to_dataframe(dsets):
 #to_file('skldt.json')
 
 
-df = to_dataframe(['bladder', 'colon', 'leuk', 'liver'])
-df.to_csv('sklearndata.csv')
+def main():
+    df = to_dataframe(['bladder', 'colon', 'leuk', 'liver', 'prostate'], [2, 5, 10, 20, 60, 100])
+    df.to_csv('sklearndata.csv')
+
+if __name__ == '__main__':
+    main()
 
 # num_trees = [2, 5, 10, 20] # add 60, 100 on faster machines
 # dtt = analyze_data(num_trees, 'bladder')
