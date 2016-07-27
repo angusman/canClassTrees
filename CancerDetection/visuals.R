@@ -32,6 +32,14 @@ ggplot(data = full_df, aes(x = ntrees, y = maxsinglefold, color = method)) +
   facet_wrap(~ cancertype)
 ggsave('MaxAccHBvSK.pdf')
 
+ggplot(data = full_df, aes(x = ntrees, y = minsinglefold, color = method)) +
+  geom_point() +
+  geom_line() + 
+  scale_x_continuous(breaks = full_df$ntrees) +
+  labs(x = 'Number of trees', y = 'Min accuracy for a single fold', title = 'Max of Accuracy of the 5 Folds') +
+  facet_wrap(~ cancertype)
+ggsave('MinAccHBvSK.pdf')
+
 ggplot(data = full_df, aes(x = ntrees, y = std, color = method)) +
   geom_point() +
   geom_line() + 
