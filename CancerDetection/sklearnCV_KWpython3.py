@@ -92,7 +92,7 @@ def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
     if clfname == 'dtree':
         C = clf()
         start = time()
-        err = sklcv.cross_val_score(C, x, y, cv=cvnum)
+        err = sklcv.cross_val_score(C, x, y, cv=sklcv.KFold(cvnum))
         stop = time()
         result = {}
         result['dataset'] = dataset
@@ -114,7 +114,7 @@ def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
         for n_trees in itr:
             C = clf(n_estimators = n_trees)
             start = time()
-            err = sklcv.cross_val_score(C, x, y, cv=cvnum)
+            err = sklcv.cross_val_score(C, x, y, cv=sklcv.KFold(cvnum))
             stop = time()
             result = {}
             result['dataset'] = dataset
@@ -227,7 +227,7 @@ def to_dataframe(dsets, num_trees):
 
 
 def main():
-    df = to_dataframe(['bladder', 'colon', 'leuk', 'liver', 'prostate'], [2, 5, 10, 20, 60, 100])
+    df = to_dataframe(['bladder', 'colon', 'leuk', 'liver', 'prostate'], [2, 5, 10, 20])
     df.to_csv('sklearndata.csv')
 
 if __name__ == '__main__':
