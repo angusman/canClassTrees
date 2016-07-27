@@ -83,7 +83,7 @@ def do_classification(clfname, clf, x, y, cvnum, esizes):
         result = {}
         result['method'] = clfname
         result['trees'] = 1
-        result['error'] = err
+        result['accuracy'] = err
         result['mean'] = err
         result['min'] = err
         result['max'] = err
@@ -101,7 +101,7 @@ def do_classification(clfname, clf, x, y, cvnum, esizes):
             result = {}
             result['method'] = clfname
             result['trees'] = n_trees
-            result['error'] = err
+            result['accuracy'] = err
             result['mean'] = np.mean(err)
             result['min'] = np.min(err)
             result['max'] = np.max(err)
@@ -137,9 +137,9 @@ def analyze_data(ensemble_sizes, dataset):
                    'bagging': BaggingClassifier,
                    'randomforest': RandomForestClassifier,
                    'adaboost': AdaBoostClassifier}
-    cvs = {'KFold1': 2,
-          'KFold2': 3,
-          'KFold3': 5}
+    cvs = {'KFold2': 2,
+          'KFold3': 3,
+          'KFold5': 5}
     
     algs = ['adaboost', 'bagging', 'dtree', 'randomforest']
     for algorithm in iter(algs):
