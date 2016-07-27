@@ -68,8 +68,6 @@ def load_liver():
 
 
 
-def fix_y(nfolds, y):
-    return y
 
 
 def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
@@ -84,6 +82,7 @@ def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
         result['dataset'] = dataset
         result['method'] = clfname
         result['trees'] = 1
+        result['kfolds'] = cvnum
         result['accuracy'] = err
         # only one conversion to np.array
         errr = np.array(err)
@@ -105,6 +104,7 @@ def do_classification(clfname, dataset, clf, x, y, cvnum, esizes):
             result['dataset'] = dataset
             result['method'] = clfname
             result['trees'] = n_trees
+            result['kfolds'] = cvnum
             result['accuracy'] = err
             errr = np.array(err)
             result['mean'] = np.mean(errr)
