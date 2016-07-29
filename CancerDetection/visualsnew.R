@@ -71,6 +71,12 @@ ggplot(data = r1atree100, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 100 trees" )
 ggsave("casestudyvis/c1aAccBar.pdf")
 
+r1atree10 <- subset(r1a, ntrees == 10)
+ggplot(data = r1atree10, aes(x = cancertype, y = aveaccuracy, fill = method)) +
+  geom_bar(stat = "identity", width = .7, position = "dodge") +
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 10 trees" )
+ggsave("casestudyvis/c1aAccBar10.pdf")
+
 # case study 2
 
 r2RF <- subset(r2, method == "RandomForestClassifier")
