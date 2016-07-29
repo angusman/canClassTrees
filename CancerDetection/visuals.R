@@ -1,11 +1,10 @@
-
 # change to your data location
 setwd('/Users/nick/Documents/MATLAB/canClassTrees/CancerDetection/data/results')
 library(ggplot2)
 
-temp = list.files(pattern="*.csv")
-homebrew <- read.csv(temp[1])
-sklearn <- read.csv(temp[2])
+
+homebrew <- read.csv("homebrew.csv")
+sklearn <- read.csv("sklearndata.csv")
 sklearn <- subset(sklearn, kfolds ==5 & method == 'randomforest')
 
 
@@ -19,9 +18,9 @@ ggplot(data = full_df, aes(x = ntrees, y = aveaccuracy, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = full_df$ntrees) +
-  labs(x = 'Number of trees', y = 'Average Accuracy', title = '5 Fold CV') +
+  labs(x = 'Number of trees', y = 'Average Accuracy', title = 'Homebrew and Random Forest Average Accuracy') +
   facet_wrap(~ cancertype)
-ggsave('AverageaccHBvSK.pdf')
+ggsave('homebrewvis/AverageaccHBvRF.pdf')
 
 
 ggplot(data = full_df, aes(x = ntrees, y = maxsinglefold, color = method)) +
@@ -30,7 +29,7 @@ ggplot(data = full_df, aes(x = ntrees, y = maxsinglefold, color = method)) +
   scale_x_continuous(breaks = full_df$ntrees) +
   labs(x = 'Number of trees', y = 'Max accuracy for a single fold', title = 'Max of Accuracy of the 5 Folds') +
   facet_wrap(~ cancertype)
-ggsave('MaxAccHBvSK.pdf')
+ggsave('homebrewvis/MaxAccHBvRF.pdf')
 
 ggplot(data = full_df, aes(x = ntrees, y = minsinglefold, color = method)) +
   geom_point() +
@@ -38,7 +37,7 @@ ggplot(data = full_df, aes(x = ntrees, y = minsinglefold, color = method)) +
   scale_x_continuous(breaks = full_df$ntrees) +
   labs(x = 'Number of trees', y = 'Min accuracy for a single fold', title = 'Min of Accuracy of the 5 Folds') +
   facet_wrap(~ cancertype)
-ggsave('MinAccHBvSK.pdf')
+ggsave('homebrewvis/MinAccHBvRF.pdf')
 
 ggplot(data = full_df, aes(x = ntrees, y = std, color = method)) +
   geom_point() +
@@ -46,7 +45,7 @@ ggplot(data = full_df, aes(x = ntrees, y = std, color = method)) +
   scale_x_continuous(breaks = full_df$ntrees) +
   labs(x = 'Number of trees', y = 'Standard deviation of fold results', title = '5 Fold CV STD') +
   facet_wrap(~ cancertype)
-ggsave('StdHBvSK.pdf')
+ggsave('homebrewvis/StdHBvRF.pdf')
   
 ggplot(data = full_df, aes(x = ntrees, y = aveaccuracy, color = method)) +
   geom_point() +
@@ -56,4 +55,12 @@ ggplot(data = full_df, aes(x = ntrees, y = aveaccuracy, color = method)) +
   scale_x_continuous(breaks = full_df$ntrees) +
   geom_line(linetype = 2, aes(y = maxsinglefold)) + 
   geom_line(linetype = 2, aes(y = minsinglefold))
-ggsave('AccBoundsHBvSK.pdf')
+ggsave('homebrewvis/AccBoundsHBvSK.pdf')
+
+ggplot(data = full_df, aes(x = ntrees, y = computationtime, color = method)) +
+  geom_point() +
+  geom_line() + 
+  scale_x_continuous(breaks = full_df$ntrees) +
+  labs(x = 'Number of trees', y = 'Computation Time', title = 'Random Forest and Homebrew Computationtime') +
+  facet_wrap(~ cancertype)
+ggsave("homebrewvis/cputimeHBvRF.pdf")

@@ -66,7 +66,7 @@ ggsave("casestudyvis/c4accExtraRandom.pdf")
 
 ggplot(data = r4, aes(x = cancertype, y = computationtime, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Computation Time between ExtraForest and RandomForest" )
+  labs(x = "Cancer Type", y = "Computation Time", title = "Computation Time between ExtraForest and RandomForest" )
 ggsave("casestudyvis/c4cputime.pdf")
 
 # case study 5
