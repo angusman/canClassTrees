@@ -14,6 +14,7 @@ from sklearn.cross_validation import KFold
 from timeit import default_timer as timer
 import datetime
 from pprint import pprint as pp
+from sklearn import tree
 
 def load_data(fil):
 	# given a filepath split the data into observations and labels
@@ -136,15 +137,15 @@ if __name__ == '__main__':
 	# trees = [1,2,5,10,20,60,100]
 	# data_df = pd.DataFrame()
 	# for treenum in trees:
-	# 	clflist = [RandomForestClassifier(n_estimators=treenum), AdaBoostClassifier(n_estimators = treenum)]
+	# 	clflist = [RandomForestClassifier(n_estimators=treenum), AdaBoostClassifier(n_estimators = treenum), tree.DecisionTreeClassifier()]
 	# 	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
 	# 	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# 	clfnames = ["RandomForestClassifier", "AdaBoostClassifier"]
+	# 	clfnames = ["RandomForestClassifier", "AdaBoostClassifier", "DecisionTreeClassifier"]
 
 	# 	holder_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = treenum, kstrat = False)
 	# 	data_df = data_df.append(holder_df, ignore_index=True)
 		
-	# data_df.to_csv('data/results/casestudy1.csv')
+	# data_df.to_csv('data/results/casestudy1a.csv')
 
 	"""
 	Case Study 2: RandomForest and AdaBoost Stratified K Folds
@@ -255,22 +256,22 @@ if __name__ == '__main__':
 	# data_df.to_csv('data/results/casestudy5.csv')
 	
 	"""
-	Case Study 6: RandomForest, AdaBoost, Bagging
+	Case Study 6: RandomForest, AdaBoost, Bagging, ExtraTreesClassifier
 	Changing parameter: classifer
-	Other parameters: Kstrat = False
+	Other parameters: Kstrat = True
 	Data: All Data sets
 	Kfolds = 10
 	"""
 
 
-	# clflist = [RandomForestClassifier(n_estimators=100), AdaBoostClassifier(n_estimators = 100), BaggingClassifier(n_estimators = 100)]
-	# filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# clfnames = ["RandomForestClassifier", "AdaBoostClassifier", "BaggingClassifier"]
+	clflist = [RandomForestClassifier(n_estimators=100), AdaBoostClassifier(n_estimators = 100), BaggingClassifier(n_estimators = 100),ExtraTreesClassifier(n_estimators = 100)]
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	clfnames = ["RandomForestClassifier", "AdaBoostClassifier", "BaggingClassifier", "ExtraTreesClassifier"]
 
-	# data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
+	data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = True)
 
-	# data_df.to_csv('data/results/casestudy6.csv')
+	data_df.to_csv('data/results/casestudy6.csv')
 
 
 
