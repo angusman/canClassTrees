@@ -4,7 +4,7 @@ library(ggplot2)
 
 r1 <- read.csv("casestudy1.csv")
 r1a <- read.csv("casestudy1a.csv")
-r1a <- subset(r1a, method != "DecisionTreeClassifier")
+r1aNoDtree <- subset(r1a, method != "DecisionTreeClassifier")
 r2 <- read.csv("casestudy2.csv")
 r3 <- read.csv("casestudy3.csv")
 r4 <- read.csv("casestudy4.csv")
@@ -40,7 +40,7 @@ ggsave("casestudyvis/c1std.pdf")
 
 # case study 1a
 
-ggplot(data = r1a, aes(x = ntrees, y = aveaccuracy, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = aveaccuracy, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = full_df$ntrees) +
@@ -48,7 +48,7 @@ ggplot(data = r1a, aes(x = ntrees, y = aveaccuracy, color = method)) +
   facet_wrap(~ cancertype)
 ggsave("casestudyvis/c1Aaccuracy.pdf")
 
-ggplot(data = r1a, aes(x = ntrees, y = computationtime, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = computationtime, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = full_df$ntrees) +
@@ -57,13 +57,19 @@ ggplot(data = r1a, aes(x = ntrees, y = computationtime, color = method)) +
 ggsave("casestudyvis/c1Acputime.pdf")
 
 
-ggplot(data = r1a, aes(x = ntrees, y = std, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = std, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = full_df$ntrees) +
   labs(x = 'Number of trees', y = 'Stand deviatation of fold accuracy', title = 'Random Forest and Adaboost Computation STD') +
   facet_wrap(~ cancertype)
 ggsave("casestudyvis/c1Astd.pdf")
+
+r1atree100 <- subset(r1a, ntrees == 100)
+ggplot(data = r1atree100, aes(x = cancertype, y = aveaccuracy, fill = method)) +
+  geom_bar(stat = "identity", width = .7, position = "dodge") +
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 100 trees" )
+ggsave("casestudyvis/c1aAccBar.pdf")
 
 # case study 2
 
