@@ -134,16 +134,19 @@ def buildtestmodels(files, treenumbers, names, folds):
 
 if __name__ == '__main__':
 
-	files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	# files = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
 
 
-	for idxf, fil in enumerate(files):
-		# run each file
-		print(fil)
-		data = pd.read_csv("data/DNA/" + fil)
-		print(fil)
-		print(data.shape)
-		print(pd.value_counts(data["Cancer"].values))
+	data = pd.read_csv("data/results/casestudy1.csv")
+	data["kstrat"] = "True"
+	data.to_csv("data/results/casestudy1.csv")
+	# for idxf, fil in enumerate(files):
+	# 	# run each file
+	# 	print(fil)
+	# 	data = pd.read_csv("data/DNA/" + fil)
+	# 	print(fil)
+	# 	print(data.shape)
+	# 	print(pd.value_counts(data["Cancer"].values))
 	# treenumbers = [1,2,5,10,20,60,100]
 	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
 
