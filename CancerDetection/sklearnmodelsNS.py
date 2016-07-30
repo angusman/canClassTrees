@@ -41,7 +41,7 @@ def datalen(fil):
 
 
 
-def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False):
+def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False, Kindexerlist = None):
 
 	rowlist = []
 
@@ -55,10 +55,15 @@ def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False):
 
 		
 		# using Stratified Kfolds?
-		if kstrat:
-			kf = StratifiedKFold(Y, n_folds = nfolds)
+		if Kindexerlist == None:
+			if kstrat:
+				kf = StratifiedKFold(Y, n_folds = nfolds)
+			else:
+				kf = KFold(datalength, n_folds=nfolds)	
 		else:
-			kf = KFold(datalength, n_folds=nfolds)	
+			print("Using Preset Kfolds index")
+			kf = Kindexerlist[idxf]
+
 
 		# Stratified KFolds
 		# 
@@ -72,7 +77,8 @@ def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False):
 			# timer for tracking computation time
 			start = timer()
 			for train_index, test_index in kf:
-				print("starting fold number ",k+1, "of", nfolds)
+				# if you want to be kept in the loop
+				# print("starting fold number ",k+1, "of", nfolds)
 
 				# split data using kfolds indexes
 				X_train, X_test = X[train_index], X[test_index]
@@ -84,7 +90,6 @@ def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False):
 				accuracy = accuracy_score(Y_test,Y_pred)
 
 				# print off accuracy
-				print("accuracy: ", accuracy)
 
 				# keep track of fold accuracy
 				acclist.append(accuracy)
@@ -106,6 +111,8 @@ def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False):
 			rowdict['method'] = clfnames[idx]
 			rowdict['kfolds'] = nfolds
 			rowdict['kstrat'] = kstrat
+			rowdict['median'] = np.median(acclist)
+			rowdict['lenfolds'] = len(acclist)
 
 			# add this rowdict to the list of rows
 
@@ -134,18 +141,26 @@ if __name__ == '__main__':
 	Data: All Data sets
 	Kfolds = 10
 	"""
-	# trees = [1,2,5,10,20,60,100]
-	# data_df = pd.DataFrame()
-	# for treenum in trees:
-	# 	clflist = [RandomForestClassifier(n_estimators=treenum), AdaBoostClassifier(n_estimators = treenum), tree.DecisionTreeClassifier()]
-	# 	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# 	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# 	clfnames = ["RandomForestClassifier", "AdaBoostClassifier", "DecisionTreeClassifier"]
+	print("Study1")
+	trees = [1,2,5,10,20,60,100]
+	data_df = pd.DataFrame()
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	clfnames = ["RandomForestClassifier", "AdaBoostClassifier", "DecisionTreeClassifier"]
+	Kindexlist = []
+	for fil in filelist:
+		X, Y = load_data(fil)
+		Kindex = StratifiedKFold(Y, n_folds = 10)
+		Kindexlist.append(Kindex)
+	
+	for treenum in trees:
+		clflist = [RandomForestClassifier(n_estimators=treenum), AdaBoostClassifier(n_estimators = treenum), tree.DecisionTreeClassifier()]
 
-	# 	holder_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = treenum, kstrat = False)
-	# 	data_df = data_df.append(holder_df, ignore_index=True)
+
+		holder_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = treenum, kstrat = False, Kindexerlist = Kindexlist)
+		data_df = data_df.append(holder_df, ignore_index=True)
 		
-	# data_df.to_csv('data/results/casestudy1a.csv')
+	data_df.to_csv('data/results/casestudy1.csv')
 
 	"""
 	Case Study 2: RandomForest and AdaBoost Stratified K Folds
@@ -154,18 +169,19 @@ if __name__ == '__main__':
 	Data: All data sets
 	Kfolds = 10
 	"""
+	print("Study2")
 
-	# clflist = [RandomForestClassifier(n_estimators=100), AdaBoostClassifier(n_estimators = 100)]
-	# filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# clfnames = ["RandomForestClassifier", "AdaBoostClassifier"]
+	clflist = [RandomForestClassifier(n_estimators=100), AdaBoostClassifier(n_estimators = 100)]
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	clfnames = ["RandomForestClassifier", "AdaBoostClassifier"]
 
-	# data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
-	# datastrat_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = True)
+	data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
+	datastrat_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = True)
 
-	# data_df = data_df.append(datastrat_df, ignore_index = True)
+	data_df = data_df.append(datastrat_df, ignore_index = True)
 
-	# data_df.to_csv('data/results/casestudy2.csv')
+	data_df.to_csv('data/results/casestudy2.csv')
 
 
 	"""
@@ -175,46 +191,46 @@ if __name__ == '__main__':
 	Data: All data sets
 	Kfolds = 10
 	"""
+	print("Study3")
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	datalens = []
+	for fil in filelist:
+		datalens.append(datalen(fil))
 
-	# filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# datalens = []
-	# for fil in filelist:
-	# 	datalens.append(datalen(fil))
-
-	# # note that log2(n) and sqrt(n) are already options for the classifer to use so 
-	# # first send those up. the others will have to be manually done
+	# note that log2(n) and sqrt(n) are already options for the classifer to use so 
+	# first send those up. the others will have to be manually done
 	
-	# clflist = [RandomForestClassifier(n_estimators=100, max_features = 'log2'), RandomForestClassifier(n_estimators = 100, max_features = 'sqrt')]
-	# clfnames = ["RandomForestClassifierLog2", "RandomForestClassifierSqrt"]
+	clflist = [RandomForestClassifier(n_estimators=100, max_features = 'log2'), RandomForestClassifier(n_estimators = 100, max_features = 'sqrt')]
+	clfnames = ["RandomForestClassifierLog2", "RandomForestClassifierSqrt"]
 
-	# data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
+	data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
 
-	# # now we have to find the data for max_features = [0.5*[ log2(n) + sqrt(n), sqrt(2n)]
-	# # each dataset has a different n so we have to loop around a bit.
+	# now we have to find the data for max_features = [0.5*[ log2(n) + sqrt(n), sqrt(2n)]
+	# each dataset has a different n so we have to loop around a bit.
 
-	# filelistmeta = [['labeled_leuk.csv'],['labeled_bladder.csv'], ['labeled_liver.csv'], ['labeled_prostate.csv'], ['labeled_colon.csv']]
-	# namesmeta = [['leuk'],['bladder'], ['liver'], ['prostate'], ['colon']]
+	filelistmeta = [['labeled_leuk.csv'],['labeled_bladder.csv'], ['labeled_liver.csv'], ['labeled_prostate.csv'], ['labeled_colon.csv']]
+	namesmeta = [['leuk'],['bladder'], ['liver'], ['prostate'], ['colon']]
 
-	# for idxfm, fillist in enumerate(filelistmeta):
+	for idxfm, fillist in enumerate(filelistmeta):
 
-	# 	# find values
-	# 	halflogsqrt = int(np.floor(.5*(np.log2(datalens[idxfm]) + np.sqrt(datalens[idxfm]))))
-	# 	sqrt2n = int(np.floor(np.sqrt(2*datalens[idxfm])))
+		# find values
+		halflogsqrt = int(np.floor(.5*(np.log2(datalens[idxfm]) + np.sqrt(datalens[idxfm]))))
+		sqrt2n = int(np.floor(np.sqrt(2*datalens[idxfm])))
 
-	# 	# for each file set make the appropreiate classifer
-	# 	clflist = [RandomForestClassifier(n_estimators=100, max_features = halflogsqrt), RandomForestClassifier(n_estimators = 100, max_features = sqrt2n)]
-	# 	clfnames = ["RandomForestClassifierHalfLogSqrt", "RandomForestClassifierSqrt2n"]
+		# for each file set make the appropreiate classifer
+		clflist = [RandomForestClassifier(n_estimators=100, max_features = halflogsqrt), RandomForestClassifier(n_estimators = 100, max_features = sqrt2n)]
+		clfnames = ["RandomForestClassifierHalfLogSqrt", "RandomForestClassifierSqrt2n"]
 		
-	# 	# predict on a single dataset
-	# 	holder_df = dowork(fillist, namesmeta[idxfm], clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
+		# predict on a single dataset
+		holder_df = dowork(fillist, namesmeta[idxfm], clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
 
-	# 	# append together hold_dfs
-	# 	data_df = data_df.append(holder_df, ignore_index=True)
+		# append together hold_dfs
+		data_df = data_df.append(holder_df, ignore_index=True)
 
-	# print(data_df)
-	# # write data to file
-	# data_df.to_csv('data/results/casestudy3.csv')
+	print(data_df)
+	# write data to file
+	data_df.to_csv('data/results/casestudy3.csv')
 
 	"""
 	Case Study 4: ExtraRandom trees v. RandomForest
@@ -223,18 +239,18 @@ if __name__ == '__main__':
 	Data: all datasets
 	Kfolds: 10
 	"""
+	print("Study4")
+	# datasets names and clfs and names
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	clflist = [RandomForestClassifier(n_estimators=100), ExtraTreesClassifier(n_estimators = 100)]
+	clfnames = ["RandomForestClassifier", "ExtraTreesClassifier"]
 
-	# # datasets names and clfs and names
-	# filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# clflist = [RandomForestClassifier(n_estimators=100), ExtraTreesClassifier(n_estimators = 100)]
-	# clfnames = ["RandomForestClassifier", "ExtraTreesClassifier"]
+	data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
 
-	# data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
+	print(data_df)
 
-	# print(data_df)
-
-	# data_df.to_csv('data/results/casestudy4.csv')
+	data_df.to_csv('data/results/casestudy4.csv')
 
 	"""
 	Case Study 5: RandomForest with BootStrapping True or False
@@ -243,17 +259,15 @@ if __name__ == '__main__':
 	Data: all datasets
 	Kfolds: 10
 	"""
+	print("Study5")
+	clflist = [RandomForestClassifier(n_estimators=100, bootstrap = True), RandomForestClassifier(n_estimators=100, bootstrap = False)]
+	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
+	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
+	clfnames = ["RandomForestClassifierBootStrap", "RandomForestClassifierNoBootStrap"]
 
-	# clflist = [RandomForestClassifier(n_estimators=100, bootstrap = True), RandomForestClassifier(n_estimators=100, bootstrap = False)]
-	# filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
-	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
-	# clfnames = ["RandomForestClassifierBootStrap", "RandomForestClassifierNoBootStrap"]
+	data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
 
-	# data_df = dowork(filelist, names, clflist, clfnames, nfolds = 10, treenum = 100, kstrat = False)
-
-	# print(data_df)
-
-	# data_df.to_csv('data/results/casestudy5.csv')
+	data_df.to_csv('data/results/casestudy5.csv')
 	
 	"""
 	Case Study 6: RandomForest, AdaBoost, Bagging, ExtraTreesClassifier
@@ -263,7 +277,7 @@ if __name__ == '__main__':
 	Kfolds = 10
 	"""
 
-
+	print("Study6")
 	clflist = [RandomForestClassifier(n_estimators=100), AdaBoostClassifier(n_estimators = 100), BaggingClassifier(n_estimators = 100),ExtraTreesClassifier(n_estimators = 100)]
 	filelist = ['labeled_leuk.csv','labeled_bladder.csv', 'labeled_liver.csv', 'labeled_prostate.csv', 'labeled_colon.csv']
 	names = ['leuk','bladder', 'liver', 'prostate', 'colon']
