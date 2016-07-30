@@ -141,6 +141,8 @@ if __name__ == '__main__':
 		# run each file
 		print(fil)
 		data = pd.read_csv("data/DNA/" + fil)
+		print(fil)
+		print(data.shape)
 		print(pd.value_counts(data["Cancer"].values))
 	# treenumbers = [1,2,5,10,20,60,100]
 	# names = ['leuk','bladder', 'liver', 'prostate', 'colon']
