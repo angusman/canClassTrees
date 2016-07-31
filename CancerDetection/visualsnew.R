@@ -3,7 +3,7 @@ setwd('/Users/nick/Documents/MATLAB/canClassTrees/CancerDetection/data/results')
 library(ggplot2)
 
 r1 <- read.csv("casestudy1.csv")
-r1NoDtree <- subset(r1a, method != "DecisionTreeClassifier")
+r1NoDtree <- subset(r1, method != "DecisionTreeClassifier")
 r2 <- read.csv("casestudy2.csv")
 r3 <- read.csv("casestudy3.csv")
 r4 <- read.csv("casestudy4.csv")
@@ -148,3 +148,4 @@ ggplot(data = r6, aes(x = cancertype, y = computationtime, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
   labs(x = "Cancer Type", y = "Computation Time", title = "Computation Time of 4 Methods" )
 ggsave("casestudyvis/c6CPU4method.pdf")
+
