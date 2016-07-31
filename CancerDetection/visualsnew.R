@@ -3,6 +3,9 @@ setwd('/Users/nick/Documents/MATLAB/canClassTrees/CancerDetection/data/results')
 library(ggplot2)
 
 r1 <- read.csv("casestudy1.csv")
+r1a <- read.csv("casestudiesNEWdata/casestudy1a.csv")
+r1aNoDtree <- subset(r1a, method != "DecisionTreeClassifier")
+r1aDtree <-subset(r1a, method == "DecisionTreeClassifier")
 r1NoDtree <- subset(r1, method != "DecisionTreeClassifier")
 r2 <- read.csv("casestudy2.csv")
 r3 <- read.csv("casestudy3.csv")
@@ -11,15 +14,17 @@ r5 <- read.csv("casestudy5.csv")
 r6 <- read.csv("casestudy6.csv")
 
 
+
 # case study 1
 
-ggplot(data = r1NoDtree, aes(x = ntrees, y = aveaccuracy, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = aveaccuracy, color = method)) +
   geom_point() +
   geom_line() + 
+  geom_line(data = r1aDtree, linetype = 2,  aes(x = ntrees, y = aveaccuracy)) +
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
   labs(x = 'Number of trees', y = 'Average Accuracy', title = '10 Fold CV') +
   facet_wrap(~ cancertype)
-ggsave("casestudyvis/c1Aveaccuracy.pdf")
+ggsave("casestudyvis/c1AveaccuracyAG.pdf")
 
 ggplot(data = r1NoDtree, aes(x = ntrees, y = computationtime, color = method)) +
   geom_point() +
@@ -30,19 +35,20 @@ ggplot(data = r1NoDtree, aes(x = ntrees, y = computationtime, color = method)) +
 ggsave("casestudyvis/c1cputime.pdf")
 
 
-ggplot(data = r1NoDtree, aes(x = ntrees, y = std, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = std, color = method)) +
   geom_point() +
   geom_line() + 
+  geom_line(data = r1aDtree, linetype = 2,  aes(x = ntrees, y = std)) +
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
   labs(x = 'Number of trees', y = 'Stand deviatation of fold accuracy', title = 'Random Forest and Adaboost STD') +
   facet_wrap(~ cancertype)
-ggsave("casestudyvis/c1std.pdf")
+ggsave("casestudyvis/c1stdAG.pdf")
 
 ggplot(data = r1NoDtree, aes(x = ntrees, y = median, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
-  labs(x = 'Number of trees', y = 'Median', title = '10 Fold CV') +
+  labs(x = 'Number of trees', y = 'Median', title = '10 Fold CV Median Accuracy') +
   facet_wrap(~ cancertype)
 ggsave("casestudyvis/c1MedAccuracy.pdf")
 
@@ -51,17 +57,17 @@ ggplot(data = r1NoDtree, aes(x = ntrees, y = std, color = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
-  labs(x = 'Number of trees', y = 'Stand deviatation of fold accuracy', title = 'Random Forest and Adaboost Computation STD') +
+  labs(x = 'Number of trees', y = 'Stand deviatation of fold accuracy', title = 'Random Forest and Adaboost STD') +
   facet_wrap(~ cancertype)
 ggsave("casestudyvis/c1std.pdf")
 
-r1tree100 <- subset(r1, ntrees == 100)
-ggplot(data = r1tree100, aes(x = cancertype, y = aveaccuracy, fill = method)) +
+r1atree100 <- subset(r1a, ntrees == 100)
+ggplot(data = r1atree100, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 100 trees" )
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy of Decision Tree v. Random Forest and Adaboost with 100 trees" )
 ggsave("casestudyvis/c1aAccBar.pdf")
 
-r1tree10 <- subset(r1, ntrees == 10)
+r1atree10 <- subset(r1a, ntrees == 10)
 ggplot(data = r1tree10, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
   labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 10 trees" )
@@ -76,6 +82,11 @@ ggplot(data = r2RF, aes(x = cancertype, y = aveaccuracy, fill=kstrat)) +
   geom_bar(stat = "identity", width=.7, position = "dodge") +
   labs(x = 'Cancer Type', y = 'Average Accuracy', title = 'Random Forest, Effects of Stratified Sampling')
 ggsave("casestudyvis/c2rfStrat.pdf")
+
+ggplot(data = r2Ada, aes(x = cancertype, y = aveaccuracy, fill=kstrat)) +
+  geom_bar(stat = "identity", width=.7, position = "dodge") +
+  labs(x = 'Cancer Type', y = 'Average Accuracy', title = 'AdaBoost, Effects of Stratified Sampling')
+ggsave("casestudyvis/c2AdaStrat.pdf")
 
 ggplot(data = r2RF, aes(x = cancertype, y = median, fill=kstrat)) +
   geom_bar(stat = "identity", width=.7, position = "dodge") +
@@ -119,13 +130,13 @@ ggsave("casestudyvis/c4cputime.pdf")
 
 ggplot(data = r5, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy with Bootstrapping or Not on Random Forest" )
-ggsave("casestudyvis/c5BootAcc.pdf")
+  labs(x = "Cancer Type", y = "Average Accuracy", title = " Average Accuracy of Rforest vs. bootstrap True/False" )
+ggsave("casestudyvis/c5BootAveAcc.pdf")
 
 ggplot(data = r5, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Median Accuracy", title = "Accuracy with Bootstrapping or Not on Random Forest" )
-ggsave("casestudyvis/c5BootAcc.pdf")
+  labs(x = "Cancer Type", y = "Median Accuracy", title = "Median Accuracy with Bootstrapping or Not on Random Forest" )
+ggsave("casestudyvis/c5BootMedAcc.pdf")
 
 ggplot(data = r5, aes(x = cancertype, y = computationtime, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
@@ -136,12 +147,12 @@ ggsave("casestudyvis/c5BootCPU.pdf")
 
 ggplot(data = r6, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of 4 Methods" )
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy of 4 Methods" )
 ggsave("casestudyvis/c6acc4method.pdf")
 
 ggplot(data = r6, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Median Accuracy", title = "Accuracy of 4 Methods" )
+  labs(x = "Cancer Type", y = "Median Accuracy", title = "Median Accuracy of 4 Methods" )
 ggsave("casestudyvis/c6Medacc4method.pdf")
 
 ggplot(data = r6, aes(x = cancertype, y = computationtime, fill = method)) +
