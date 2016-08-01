@@ -21,14 +21,14 @@ r6amelt <- read.csv("casestudiesNEWdata/casestudy6aMelt.csv")
 
 # case study 1
 
-ggplot(data = r1aNoDtree, aes(x = ntrees, y = aveaccuracy,  linetype = method)) +
+ggplot(data = r1a, aes(x = ntrees, y = aveaccuracy,  linetype = method)) +
   geom_point() +
   geom_line() + 
-  geom_line(data = r1aDtree, linetype = 2,  aes(x = ntrees, y = aveaccuracy)) +
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
-  labs(x = 'Number of trees', y = 'Average Accuracy', title = '10 Fold CV') +
-  facet_wrap(~ cancertype)
-ggsave("casestudyvis/c1AveaccuracyAG.pdf")
+  labs(x = 'Number of trees', y = 'Average Accuracy', title = '10 Fold CV Average Accuracy') +
+  facet_wrap(~ cancertype) +
+  theme_bw()
+ggsave("casestudyvis/c1AveaccuracyAGBW.pdf")
 
 ggplot(data = r1NoDtree, aes(x = ntrees, y = computationtime, color = method)) +
   geom_point() +
@@ -57,13 +57,14 @@ ggplot(data = r1NoDtree, aes(x = ntrees, y = median, color = method)) +
 ggsave("casestudyvis/c1MedAccuracy.pdf")
 
 
-ggplot(data = r1NoDtree, aes(x = ntrees, y = std, color = method)) +
+ggplot(data = r1a, aes(x = ntrees, y = std, linetype = method)) +
   geom_point() +
   geom_line() + 
   scale_x_continuous(breaks = r1NoDtree$ntrees) +
   labs(x = 'Number of trees', y = 'Stand deviatation of fold accuracy', title = 'Random Forest and Adaboost STD') +
-  facet_wrap(~ cancertype)
-ggsave("casestudyvis/c1std.pdf")
+  facet_wrap(~ cancertype) +
+  theme_bw()
+ggsave("casestudyvis/c1stdBW.pdf")
 
 r1atree100 <- subset(r1a, ntrees == 100)
 ggplot(data = r1atree100, aes(x = cancertype, y = aveaccuracy, fill = method)) +
@@ -84,13 +85,17 @@ r2Ada <- subset(r2, method == "AdaBoostClassifier")
 
 ggplot(data = r2RF, aes(x = cancertype, y = aveaccuracy, fill=kstrat)) +
   geom_bar(stat = "identity", width=.7, position = "dodge") +
+  theme_bw()+
+  scale_fill_grey()+
   labs(x = 'Cancer Type', y = 'Average Accuracy', title = 'Random Forest, Effects of Stratified Sampling')
-ggsave("casestudyvis/c2rfStrat.pdf")
+ggsave("casestudyvis/c2rfStratBW.pdf")
 
 ggplot(data = r2Ada, aes(x = cancertype, y = aveaccuracy, fill=kstrat)) +
+  theme_bw()+
+  scale_fill_grey()+
   geom_bar(stat = "identity", width=.7, position = "dodge") +
   labs(x = 'Cancer Type', y = 'Average Accuracy', title = 'AdaBoost, Effects of Stratified Sampling')
-ggsave("casestudyvis/c2AdaStrat.pdf")
+ggsave("casestudyvis/c2AdaStratBW.pdf")
 
 ggplot(data = r2RF, aes(x = cancertype, y = median, fill=kstrat)) +
   geom_bar(stat = "identity", width=.7, position = "dodge") +
@@ -105,9 +110,11 @@ ggsave("casestudyvis/c2MedadaStrat.pdf")
 # case study 3
 
 ggplot(data = r3, aes(x = cancertype, y = aveaccuracy, fill = method)) +
+  theme_bw()+
+  scale_fill_grey()+
   geom_bar(stat = "identity", width = .7, position = "dodge") +
   labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy with Random Feature Selection")
-ggsave("casestudyvis/c3featuresize.pdf")
+ggsave("casestudyvis/c3featuresizeBW.pdf")
 
 ggplot(data = r3, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
@@ -132,10 +139,12 @@ ggsave("casestudyvis/c4cputime.pdf")
 
 # case study 5
 
-ggplot(data = r5, aes(x = cancertype, y = aveaccuracy, fill = method)) +
+ggplot(data = r5, aes(x = factor(cancertype), y = aveaccuracy, fill=factor(method))) +
+  scale_fill_grey() +
+  theme_bw() +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
   labs(x = "Cancer Type", y = "Average Accuracy", title = " Average Accuracy of Rforest vs. bootstrap True/False" )
-ggsave("casestudyvis/c5BootAveAcc.pdf")
+ggsave("casestudyvis/c5BootAveAccBW.pdf")
 
 ggplot(data = r5, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
@@ -164,13 +173,15 @@ ggplot(data = r6, aes(x = cancertype, y = computationtime, fill = method)) +
   labs(x = "Cancer Type", y = "Computation Time", title = "Computation Time of 4 Methods" )
 ggsave("casestudyvis/c6CPU4method.pdf")
 
-ggplot(data = r6amelt, aes(x = method, y = Accuracy, color = method)) +
+ggplot(data = r6amelt, aes(x = method, y = Accuracy, fill = method)) +
+  theme_bw()+
+  scale_fill_grey()+
   geom_boxplot() +
   labs(x = "Method", y = "Accuracy", title = "Accuracy distributions" )+
   scale_x_discrete(breaks=NULL) +
   geom_jitter(width = 0.1, alpha = .4)+
   facet_wrap(~cancertype)
-ggsave("casestudyvis/c6aBoxPlotsAG.pdf")
+ggsave("casestudyvis/c6aBoxPlotsAGBW.pdf")
 
   
   
