@@ -1,0 +1,31 @@
+potential question list:
+
+math/algos:
+- How does bagging differ from random forest?
+- Methods of selection:
+	- What is Gini?
+	- What is entropy and information gain?
+- why use bagging/random feature selection?
+- what is the point of dimiishing returns on treenumbers?
+- what could you do or would test to further the accuarcy in terms of ensemble concepts?
+
+
+results:
+- why are you looking at the stats that you are looking at?
+- How pratically would you implement the recomemdations made?
+- what reasons do you have for as to why some cancers or algos have lower scores?
+- Given that ensemble methods are supposed to work better why is dtree so close to RF or other ensemble methods?
+
+
+
+programing:
+- why python?
+	- why python 3?
+- where does sklearn come from?
+- why is cpu time an important consideration?
+- Explain extratrees?
+- why isnt adaboost performing as well?
+
+
+
+

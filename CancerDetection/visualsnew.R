@@ -1,6 +1,7 @@
 # change to your data location
 setwd('/Users/nick/Documents/MATLAB/canClassTrees/CancerDetection/data/results')
 library(ggplot2)
+library(reshape2)
 
 r1 <- read.csv("casestudy1.csv")
 r1a <- read.csv("casestudiesNEWdata/casestudy1a.csv")
@@ -12,12 +13,15 @@ r3 <- read.csv("casestudy3.csv")
 r4 <- read.csv("casestudy4.csv")
 r5 <- read.csv("casestudy5.csv")
 r6 <- read.csv("casestudy6.csv")
+r6a <- read.csv("casestudiesNEWdata/casestudy6a.csv")
+r6amelt <- read.csv("casestudiesNEWdata/casestudy6aMelt.csv")
+
 
 
 
 # case study 1
 
-ggplot(data = r1aNoDtree, aes(x = ntrees, y = aveaccuracy, color = method)) +
+ggplot(data = r1aNoDtree, aes(x = ntrees, y = aveaccuracy,  linetype = method)) +
   geom_point() +
   geom_line() + 
   geom_line(data = r1aDtree, linetype = 2,  aes(x = ntrees, y = aveaccuracy)) +
@@ -70,7 +74,7 @@ ggsave("casestudyvis/c1aAccBar.pdf")
 r1atree10 <- subset(r1a, ntrees == 10)
 ggplot(data = r1tree10, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy of Decision Tree v. Random Forest and Adaboost with 10 trees" )
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy of Decision Tree v. Random Forest and Adaboost with 10 trees" )
 ggsave("casestudyvis/c1aAccBar10.pdf")
 
 # case study 2
@@ -102,23 +106,23 @@ ggsave("casestudyvis/c2MedadaStrat.pdf")
 
 ggplot(data = r3, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Size of Random Feature Selection Random Forrest")
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy with Random Feature Selection")
 ggsave("casestudyvis/c3featuresize.pdf")
 
 ggplot(data = r3, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Median Accuracy", title = "Size of Random Feature Selection Random Forrest")
+  labs(x = "Cancer Type", y = "Median Accuracy", title = "Median Accuracy Size of Random Feature Selection Random Forrest")
 ggsave("casestudyvis/c3Medfeaturesize.pdf")
 # case study 4
 
 ggplot(data = r4, aes(x = cancertype, y = aveaccuracy, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Average Accuracy", title = "Accuracy between ExtraForest and RandomForest" )
+  labs(x = "Cancer Type", y = "Average Accuracy", title = "Average Accuracy between ExtraForest and RandomForest" )
 ggsave("casestudyvis/c4accExtraRandom.pdf")
 
 ggplot(data = r4, aes(x = cancertype, y = median, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
-  labs(x = "Cancer Type", y = "Median Accuracy", title = "Accuracy between ExtraForest and RandomForest" )
+  labs(x = "Cancer Type", y = "Median Accuracy", title = "Median Accuracy between ExtraForest and RandomForest" )
 ggsave("casestudyvis/c4MedaccExtraRandom.pdf")
 
 ggplot(data = r4, aes(x = cancertype, y = computationtime, fill = method)) +
@@ -159,4 +163,17 @@ ggplot(data = r6, aes(x = cancertype, y = computationtime, fill = method)) +
   geom_bar(stat = "identity", width = .7, position = "dodge") +
   labs(x = "Cancer Type", y = "Computation Time", title = "Computation Time of 4 Methods" )
 ggsave("casestudyvis/c6CPU4method.pdf")
+
+ggplot(data = r6amelt, aes(x = method, y = Accuracy, color = method)) +
+  geom_boxplot() +
+  labs(x = "Method", y = "Accuracy", title = "Accuracy distributions" )+
+  scale_x_discrete(breaks=NULL) +
+  geom_jitter(width = 0.1, alpha = .4)+
+  facet_wrap(~cancertype)
+ggsave("casestudyvis/c6aBoxPlotsAG.pdf")
+
+  
+  
+
+
 
