@@ -11,17 +11,17 @@ Instructions for getting and running the code
 
 	5. The data has been prelabeled and proccessed, if you are interested in how that is done see the datalabeling script in the etc/ folder
 
-	6. to run the sklearnmodels use sklearnmodes.py script, to use the from scratch tree models, run ourtreemodels.py
+	6. to run the sklearnmodels use sklearnmodels.py script, to use the from scratch tree models, run ourtreemodels.py
 
 
 sklearnmodels.py
 	The sklearnmodel script contains 6 different case studies, each one is sectioned off by a block of """ """ comments detailing what is being tested in the area. Feel free to try different experiments, just make sure that you follow the right structure, also keep in mind some classifiers are slower than others, so start with a small number of trees for ensemble methods before scaling up.
 
 ourtreemodel.py
-	Our tree model script implements a random forest at varinging tree levels to compare accuracy as tree numbers increase. Warning! this approach was discontinued due to the nessicary computation time. At last check it took over 4.5 hours to finish running the script.
+	Our tree model script implements a random forest at varying tree levels to compare accuracy as tree numbers increase. Warning! this approach was discontinued due to the necessary computation time. At last check it took over 4.5 hours to finish running the script.
 
 objects/:
-	In learning about how ensemble tree methods work we build and completed a decission tree classifier and a random forest classifer they can be found in the objects/ folder. The decision tree model is based off of a variant of the IDE3 algorithm, and the random forest off of the 2001 paper by Leo Breiman.
+	In learning about how ensemble tree methods work we build and completed a decision tree classifier and a random forest classifer they can be found in the objects/ folder. The decision tree model is based off of a variant of the ID3 algorithm, and the random forest off of the 2001 paper by Leo Breiman.
 
 Data:
 	Data is stored in two primary locations:
@@ -35,7 +35,7 @@ Data:
 
 Results:
 	All of the results generated from the sklearnmodels are labeled with the convention casestudy*.csv, some notes related to the data stored in there:
-		- casestudy1.csv and casestudy1a.csv both contain results from  a decission tree classifer that indicates through its ntrees column that we are using more than a single tree for the data row, that is not the case only a single decision tree was involved.
+		- casestudy1.csv and casestudy1a.csv both contain results from a decision tree classifer that indicates through its ntrees column that we are using more than a single tree for the data row, that is not the case only a single decision tree was involved.
 
 	The files sklearndata.csv and homebrew.csv contain results from an early test of performance of sklearn's random forest and our own model. The data columns in this file slightly differ than the case study data since it was from ealier in the project.
 
