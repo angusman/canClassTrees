@@ -18,7 +18,10 @@ from sklearn import tree
 
 def load_data(fil):
 	# given a filepath split the data into observations and labels
-	# returns thouse observations and labels
+	# returns those observations and labels
+	# INPUT: fil = filepath string
+	# OUTPUTs: observations = numpy array of gene expressions
+	#         labels = numpy array of classification labels
 	data = pd.read_csv("data/DNA/" + fil)
 
 	labels = np.array(data['Cancer'])
@@ -32,11 +35,16 @@ def load_data(fil):
 	return observations, labels
 
 def datalen(fil):
-	# given a file math return the length of data set
+	# given a file path return the length of data set
+	# INPUT: fil = filepath string
+	# OUTPUT: data.shape[0] = length of data frame
 	data = pd.read_csv("data/DNA/" + fil)
 	return data.shape[0]
 
 def list_to_dict(liste):
+    	# given a list return a dict
+	# INPUT: liste = list of values
+	# OUTPUT: mydict = dict of values
 	mydict = {}
 	for idx, val in enumerate(liste):
 		mydict['fold' + str(idx)] = val
@@ -48,6 +56,30 @@ def list_to_dict(liste):
 
 
 def dowork(filelist, names, clflist, clfnames,nfolds,treenum, kstrat = False, Kindexerlist = None):
+    	# given experiment information, return experiment results
+	# INPUTs: filelist = list of filepath strings
+	#         names = list of strings describing data
+	#         clflist = list of functions to use for classifiers
+	#         clfnames = list of strings describing classifiers
+	#         nfolds = number of cross-validation folds
+	#         treenum = number of trees to use for each classifier
+	#         kstrat = logical to specify nonstratified (false) or stratified (true) sampling
+	#         Kindexerlist = list of indexes to use for repeating experiments with consistent cross-validation sets
+	# OUTPUT: data_df = pandas data frame consisting of the following information:
+	#                  acclist = accuracy for each fold
+	#                  cancertype = from names input
+	#                  aveaccuracy = average accuracy across folds
+	#                  ntrees = number of trees from treenum input
+	#                  std = standard deviation across folds
+	#                  timestamp = time when experiment was run
+	#                  computationtime = time to complete experiment
+	#                  maxsinglefold = maximum accuracy across folds
+	#                  minsinglefold = minimum accuracy across folds
+	#                  method = from clfnames input
+	#                  kfolds = number of folds from nfolds input
+	#                  kstrat = stratified sampling status from kstrat input
+	#                  median = median accuracy across folds
+	#                  lenfolds = number of folds used
 
 	rowlist = []
 
@@ -143,7 +175,7 @@ if __name__ == '__main__':
 	"""
 	Case Study 1: RandomForest and AdaBoost Varing Tree numbers Standard Parameters
 	Changing parameter: trees = [1,2,5,10,20,60,100]
-	Other parameters: Kstrat = False
+	Other parameters: Kstrat = True
 	Data: All Data sets
 	Kfolds = 10
 	"""
